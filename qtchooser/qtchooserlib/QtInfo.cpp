@@ -7,17 +7,22 @@
  */
 
 #include "QtInfo.h"
-#include <QStandardPaths>
 #include <spdlog/spdlog.h>
-#include <QProcess>
-#include <QtConcurrentRun>
 #include <QFuture>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QtConcurrentRun>
 
 namespace qtchooser {
 
+QtInfo::QtInfo()
+{
+    qRegisterMetaType<QtInfo>();
+}
+
 QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem::path &path)
 {
-    return QtConcurrent::run([path]()->std::expected<QtInfo, QtInfo::Error> {
+    return QtConcurrent::run([path]() -> std::expected<QtInfo, QtInfo::Error> {
         SPDLOG_DEBUG("Inspecting {}", path.string());
         QtInfo info;
 
@@ -27,7 +32,7 @@ QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem:
                 SPDLOG_DEBUG("Not a directory.");
                 return std::unexpected(Error::FileNotFound);
             }
-        } catch (const std::filesystem::filesystem_error&e) {
+        } catch (const std::filesystem::filesystem_error &e) {
             SPDLOG_ERROR("Filesystem error: {}", e.what());
             return std::unexpected(Error::FileNotFound);
         }
@@ -54,7 +59,7 @@ QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem:
             return std::unexpected(Error::BadInstall);
         }
         qtdiag.setReadChannel(QProcess::StandardOutput);
-        info.name_= QString::fromUtf8(qtdiag.readLine()).trimmed();
+        info.name_ = QString::fromUtf8(qtdiag.readLine()).trimmed();
 
         QProcess qtpaths;
         qtpaths.start(qtpathsPath, {"--qt-version"});
@@ -64,10 +69,14 @@ QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem:
             return std::unexpected(Error::BadInstall);
         }
         qtpaths.setReadChannel(QProcess::StandardOutput);
-        info.version_= QVersionNumber::fromString(QString::fromUtf8(qtpaths.readLine()).trimmed());
+        info.version_ = QVersionNumber::fromString(QString::fromUtf8(qtpaths.readLine()).trimmed());
+        if (info.version_.isNull()) {
+            SPDLOG_ERROR("Unexpected version number");
+            return std::unexpected(Error::BadData);
+        }
 
         return info;
     });
 }
 
-} // qtchooser
+} // namespace qtchooser

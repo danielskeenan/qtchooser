@@ -9,24 +9,24 @@
 #ifndef QTCHOOSER_QTCHOOSERLIB_QTINFO_H
 #define QTCHOOSER_QTCHOOSERLIB_QTINFO_H
 
+#include <expected>
 #include <filesystem>
+#include <QFuture>
 #include <QString>
 #include <QVersionNumber>
-#include <expected>
-#include <QFuture>
 
 namespace qtchooser {
 
 /**
  * Hold information about a given Qt installation.
  */
-class QtInfo {
+class QtInfo
+{
 public:
     /**
      * Possible errors when inspecting a possible Qt installation.
      */
-    enum class Error
-    {
+    enum class Error {
         /** The path does not exist. */
         FileNotFound,
         /** The installation is missing critical files. */
@@ -37,17 +37,21 @@ public:
         Unknown,
     };
 
-    static QFuture<std::expected<QtInfo, QtInfo::Error>> get(const std::filesystem::path& path);
+    explicit QtInfo();
+    auto operator<=>(const QtInfo &) const = default;
+    static QFuture<std::expected<QtInfo, QtInfo::Error>> get(const std::filesystem::path &path);
     [[nodiscard]] QString name() const { return name_; }
     [[nodiscard]] QVersionNumber version() const { return version_; }
     [[nodiscard]] std::filesystem::path prefix() const { return prefix_; }
 
 private:
-    QString name_;
     QVersionNumber version_;
+    QString name_;
     std::filesystem::path prefix_;
 };
 
-} // qtchooser
+} // namespace qtchooser
+
+Q_DECLARE_METATYPE(qtchooser::QtInfo)
 
 #endif //QTCHOOSER_QTCHOOSERLIB_QTINFO_H

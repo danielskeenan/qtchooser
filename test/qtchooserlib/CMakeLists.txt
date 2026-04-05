@@ -17,12 +17,14 @@ configure_file(qtchooser_testinfo.h.in ${PROJECT_BINARY_DIR}/qtchooser/qtchooser
 qt_add_executable(${TARGET}
         main.cpp
         QtInfoTest.cpp
+        QtFinderTest.cpp
 )
 
 find_package(Catch2 3 REQUIRED)
 target_link_libraries(${TARGET} PRIVATE
         qtchooserlib
         Qt::Core
+        Qt::Test
         Catch2::Catch2
 )
 

@@ -6,12 +6,12 @@
  * @copyright GPL-3.0
  */
 
-#include <catch2/catch_test_macros.hpp>
-#include <qtchooser/qtchooserlib/QtInfo.h>
-#include <QLibraryInfo>
 #include "qtchooser/qtchooser_testinfo.h"
+#include <catch2/catch_test_macros.hpp>
+#include <QLibraryInfo>
+#include <qtchooser/qtchooserlib/QtInfo.h>
 
-TEST_CASE("Inspect Qt")
+TEST_CASE("QtInfo")
 {
     const auto prefix = std::filesystem::canonical(qtchooser::test::kHostQtPath);
     const auto version = QLibraryInfo::version();
@@ -23,9 +23,7 @@ TEST_CASE("Inspect Qt")
         FAIL(std::format("Error {}", static_cast<int>(info.error())));
     }
 
-    CAPTURE(info->name().toStdString());
-    CAPTURE(QLibraryInfo::build());
-    CHECK(info->name().startsWith(QLibraryInfo::build()));
+    CHECK(info->name().startsWith(QString("Qt %1").arg(QT_VERSION_STR)));
     CHECK(info->prefix() == prefix);
     CHECK(info->version().toString().toStdString() == version.toString().toStdString());
 }

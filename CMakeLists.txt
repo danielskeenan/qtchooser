@@ -39,6 +39,7 @@ if (BUILD_EXEC)
     set(QT_COMPONENTS
             Core
             Concurrent
+            Test
     )
     find_package(Qt6 COMPONENTS ${QT_COMPONENTS} REQUIRED)
 
