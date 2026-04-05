@@ -12,6 +12,7 @@ execute_process(
         COMMAND_ERROR_IS_FATAL ANY
 )
 string(STRIP "${QT_INSTALL_PREFIX}" QT_INSTALL_PREFIX)
+cmake_path(GET QTPATHS_PROG PARENT_PATH QT_BINDIR)
 configure_file(qtchooser_testinfo.h.in ${PROJECT_BINARY_DIR}/qtchooser/qtchooser_testinfo.h)
 
 qt_add_executable(${TARGET}

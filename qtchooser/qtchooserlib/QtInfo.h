@@ -43,11 +43,15 @@ public:
     [[nodiscard]] QString name() const { return name_; }
     [[nodiscard]] QVersionNumber version() const { return version_; }
     [[nodiscard]] std::filesystem::path prefix() const { return prefix_; }
+    [[nodiscard]] std::filesystem::path binDir() const { return binDir_; }
+    [[nodiscard]] std::filesystem::path cmakePackageDir() const { return cmakePackageDir_; }
 
 private:
     QVersionNumber version_;
     QString name_;
     std::filesystem::path prefix_;
+    std::filesystem::path binDir_;
+    std::filesystem::path cmakePackageDir_;
 };
 
 } // namespace qtchooser

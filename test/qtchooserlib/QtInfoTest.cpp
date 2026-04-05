@@ -13,7 +13,7 @@
 
 TEST_CASE("QtInfo")
 {
-    const auto prefix = std::filesystem::canonical(qtchooser::test::kHostQtPath);
+    const auto prefix = std::filesystem::canonical(qtchooser::test::kHostQtPrefix);
     const auto version = QLibraryInfo::version();
 
     auto future = qtchooser::QtInfo::get(prefix);
@@ -26,4 +26,6 @@ TEST_CASE("QtInfo")
     CHECK(info->name().startsWith(QString("Qt %1").arg(QT_VERSION_STR)));
     CHECK(info->prefix() == prefix);
     CHECK(info->version().toString().toStdString() == version.toString().toStdString());
+    CHECK(info->binDir() == qtchooser::test::kHostQtBinDir);
+    CHECK(info->cmakePackageDir() == qtchooser::test::kHostQtCMakeDir);
 }

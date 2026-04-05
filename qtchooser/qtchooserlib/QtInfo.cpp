@@ -20,6 +20,28 @@ QtInfo::QtInfo()
     qRegisterMetaType<QtInfo>();
 }
 
+/**
+ * Similar to CMake's find_file.
+ *
+ * Find the first instance of a filename in searchDir.
+ * @param name
+ * @param searchDir
+ * @return
+ */
+std::optional<std::filesystem::path> findFile(
+    const std::string &name, const std::filesystem::path &searchDir)
+{
+    for (const auto &entry : std::filesystem::recursive_directory_iterator(
+             searchDir, std::filesystem::directory_options::skip_permission_denied)) {
+        if (std::filesystem::is_regular_file(std::filesystem::canonical(entry.path()))
+            && entry.path().filename() == name) {
+            return entry.path();
+        }
+    }
+
+    return {};
+}
+
 QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem::path &path)
 {
     return QtConcurrent::run([path]() -> std::expected<QtInfo, QtInfo::Error> {
@@ -36,17 +58,18 @@ QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem:
             SPDLOG_ERROR("Filesystem error: {}", e.what());
             return std::unexpected(Error::FileNotFound);
         }
+        info.binDir_ = info.prefix_ / "bin";
 
         // Find qtdiag and qtpaths.
-        const QStringList qtBinDirs{QString::fromStdString((info.prefix_ / "bin").string())};
+        const QStringList qtBinDirs{QString::fromStdString((info.binDir_).string())};
         const auto qtdiagPath = QStandardPaths::findExecutable("qtdiag", qtBinDirs);
         if (qtdiagPath.isEmpty()) {
-            SPDLOG_ERROR("Could not find qtdiag");
+            SPDLOG_ERROR("Could not find qtdiag.");
             return std::unexpected(Error::BadInstall);
         }
         const auto qtpathsPath = QStandardPaths::findExecutable("qtpaths", qtBinDirs);
         if (qtpathsPath.isEmpty()) {
-            SPDLOG_ERROR("Cound not find qtpaths");
+            SPDLOG_ERROR("Cound not find qtpaths.");
             return std::unexpected(Error::BadInstall);
         }
 
@@ -74,6 +97,13 @@ QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem:
             SPDLOG_ERROR("Unexpected version number");
             return std::unexpected(Error::BadData);
         }
+        const auto cmakePackageFile
+            = findFile(std::format("Qt{}Config.cmake", info.version_.majorVersion()), info.prefix_);
+        if (!cmakePackageFile) {
+            SPDLOG_ERROR("Could not find CMake package file.");
+            return std::unexpected(Error::BadInstall);
+        }
+        info.cmakePackageDir_ = cmakePackageFile->parent_path();
 
         return info;
     });

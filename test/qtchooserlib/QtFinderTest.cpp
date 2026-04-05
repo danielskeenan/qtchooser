@@ -22,9 +22,9 @@ TEST_CASE("QtFinder")
     REQUIRE(finderSpy.size() > 0);
 
     // Check for the Qt this program was compiled with.
-    const auto thisQtInfo = qtchooser::QtInfo::get(qtchooser::test::kHostQtPath).result();
+    const auto thisQtInfo = qtchooser::QtInfo::get(qtchooser::test::kHostQtPrefix).result();
     REQUIRE(thisQtInfo.has_value());
-    CHECK(std::ranges::any_of(finderSpy, [&thisQtInfo](const QVariantList& args) {
+    CHECK(std::ranges::any_of(finderSpy, [&thisQtInfo](const QVariantList &args) {
         return args.front().value<qtchooser::QtInfo>() == thisQtInfo;
     }));
 }

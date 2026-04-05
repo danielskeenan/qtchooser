@@ -10,7 +10,9 @@
 #define TEST_QTCHOOSERLIB_QTCHOOSER_TESTINFO_H
 
 namespace qtchooser::test {
-    const auto kHostQtPath = "${QT_INSTALL_PREFIX}";
+    const auto kHostQtPrefix = "${QT_INSTALL_PREFIX}";
+    const auto kHostQtBinDir = "${QT_BINDIR}";
+    const auto kHostQtCMakeDir = "${Qt6_DIR}";
 }
 
 #endif //TEST_QTCHOOSERLIB_QTCHOOSER_TESTINFO_H
