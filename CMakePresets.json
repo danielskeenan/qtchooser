@@ -1,0 +1,103 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "hidden": true,
+      "displayName": "Debug (Generic Base)",
+      "description": "Debug build",
+      "binaryDir": "${sourceDir}/cmake-build-${presetName}",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "BUILD_EXEC": true,
+        "BUILD_PACKAGE": false,
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/cmake-build-${presetName}/install_root"
+      },
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "release",
+      "hidden": true,
+      "displayName": "Release (Generic Base)",
+      "description": "Release build",
+      "binaryDir": "${sourceDir}/cmake-build-${presetName}",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "BUILD_EXEC": true,
+        "BUILD_PACKAGE": true,
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/cmake-build-${presetName}/install_root"
+      },
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "doc",
+      "displayName": "Documentation Only",
+      "inherits": ["linux-release"],
+      "cacheVariables": {
+        "BUILD_EXEC": false,
+        "BUILD_DOC": true
+      }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Debug (Linux)",
+      "inherits": "debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "-Og"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Release (Linux)",
+      "inherits": "release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "-O3",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE"
+      }
+    },
+    {
+      "name": "windows-debug",
+      "displayName": "Debug (Windows)",
+      "inherits": "debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "/Od"
+      }
+    },
+    {
+      "name": "windows-release",
+      "displayName": "Release (Windows)",
+      "inherits": "release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "/O2",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE"
+      }
+    }
+  ]
+}
