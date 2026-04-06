@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(qtchooser
         VERSION 1.0.0
         DESCRIPTION "Manage multiple Qt versions"
+        HOMEPAGE_URL "https://github.com/danielskeenan/qtchooser"
 )
 set(PROJECT_DISPLAY_NAME "qtchooser")
 set(PROJECT_AUTHOR "Dan Keenan")
