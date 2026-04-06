@@ -23,14 +23,14 @@ set_target_properties(${TARGET} PROPERTIES
 )
 
 install(TARGETS ${TARGET} RUNTIME)
-qt_generate_deploy_app_script(
-        TARGET ${TARGET}
-        OUTPUT_SCRIPT DEPLOY_SCRIPT
-        NO_UNSUPPORTED_PLATFORM_ERROR
-)
-install(SCRIPT "${DEPLOY_SCRIPT}")
 
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    qt_generate_deploy_app_script(
+            TARGET ${TARGET}
+            OUTPUT_SCRIPT DEPLOY_SCRIPT
+            NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    install(SCRIPT "${DEPLOY_SCRIPT}")
     qt_generate_deploy_app_script(
             TARGET ${TARGET}
             OUTPUT_SCRIPT TEST_DEPLOY_SCRIPT_FILE
