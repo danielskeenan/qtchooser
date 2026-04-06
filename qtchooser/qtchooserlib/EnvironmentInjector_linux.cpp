@@ -129,13 +129,14 @@ void EnvironmentInjector::commit()
 
     // Seek to our section of the file.
     while (bashProfile.readLineInto(&line)) {
-        newBashProfile << line;
         if (line == kProfileMarker) {
             break;
         }
+        newBashProfile << line << '\n';
     }
 
     // Write our exports.
+    newBashProfile << kProfileMarker << '\n';
     for (const auto &[var, val] : env_.asKeyValueRange()) {
         auto exportVal = val;
         if (var == kEnvPath) {
@@ -149,13 +150,14 @@ void EnvironmentInjector::commit()
     while (bashProfile.readLineInto(&line)) {
         if (line.trimmed().isEmpty()) {
             // End of our section.
+            newBashProfile << line << '\n';
             break;
         }
     }
 
     // Write remainder of file.
     while (bashProfile.readLineInto(&line)) {
-        newBashProfile << line;
+        newBashProfile << line << '\n';
     }
 
     newBashProfile.flush();
