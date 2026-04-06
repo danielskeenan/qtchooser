@@ -52,19 +52,6 @@ jobs:
           key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json') }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-binary-cache-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-          cache: pip
-          cache-dependency-path: doc/requirements.txt
-      - name: Install System Packages (macOS)
-        if: ${{runner.os == 'macOS'}}
-        run: brew install pandoc
-      - name: Install System Packages (Windows)
-        if: ${{runner.os == 'Windows'}}
-        run: |
-          choco install pandoc -y --ia=ALLUSERS=1
       - name: Install System Packages (Linux)
         if: ${{runner.os == 'Linux'}}
         run: |
