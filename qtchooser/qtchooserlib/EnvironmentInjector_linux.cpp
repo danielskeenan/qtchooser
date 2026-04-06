@@ -20,7 +20,7 @@ constexpr auto kProfileMarker = "# Added by qtchooser";
 constexpr auto kEnvPath = "PATH";
 constexpr auto kEnvPathRef = ":${PATH}";
 constexpr auto kEnvPathSeparator = ':';
-const QRegularExpression kReExport(R"/(^s*export (w+)="?(.+?)"?$)/");
+const QRegularExpression kReExport(R"/(^\s*export (\w+)="?(.+?)"?$)/");
 
 QFile getBashProfile()
 {
@@ -68,60 +68,39 @@ EnvironmentInjector::Environment getUserEnvironment()
     return env;
 }
 
-EnvironmentInjector::EnvironmentInjector() : env_(getUserEnvironment()) {}
+EnvironmentInjector::EnvironmentInjector() : originalEnv_(getUserEnvironment()), env_(originalEnv_)
+{}
 
-bool EnvironmentInjector::setEnv(const QString &var, const QString &val)
+void EnvironmentInjector::setEnv(const QString &var, const QString &val)
 {
-    if (env_[var] == val) {
-        return false;
-    }
     env_[var] = val;
-    return true;
 }
 
-QStringList EnvironmentInjector::getUserPath()
-{
-    return env_[kEnvPath].split(kEnvPathSeparator, Qt::SkipEmptyParts);
-}
-
-bool EnvironmentInjector::setUserPath(const QStringList &path)
-{
-    return setEnv(kEnvPath, path.join(kEnvPathSeparator));
-}
-
-bool EnvironmentInjector::addToPath(const std::filesystem::path &path)
+void EnvironmentInjector::addToPath(const std::filesystem::path &path)
 {
     auto userPath = getUserPath();
-    if (userPath.contains(QString::fromStdString(path.string()))) {
-        return false;
-    }
-
     userPath.push_back(QString::fromStdString(path.string()));
-    return setUserPath(userPath);
+    setUserPath(userPath);
 }
 
-bool EnvironmentInjector::removeFromPath(const std::filesystem::path &path)
+void EnvironmentInjector::removeFromPath(const std::filesystem::path &path)
 {
     auto userPath = getUserPath();
-    if (!userPath.contains(QString::fromStdString(path.string()))) {
-        return false;
-    }
-
     userPath.removeAll(QString::fromStdString(path.string()));
-    return setUserPath(userPath);
+    setUserPath(userPath);
 }
 
-void EnvironmentInjector::commit()
+bool EnvironmentInjector::commit()
 {
     auto bashProfileFile = getBashProfile();
     if (!bashProfileFile.open(QFile::ReadOnly)) {
         SPDLOG_WARN("Could not open .bash_profile.");
-        return;
+        return false;
     }
     QSaveFile newBashProfileFile(bashProfileFile.fileName());
     if (!newBashProfileFile.open(QFile::WriteOnly)) {
         SPDLOG_ERROR("Could not open temp .bash_profile for writing.");
-        return;
+        return false;
     }
     QTextStream bashProfile(&bashProfileFile);
     QTextStream newBashProfile(&newBashProfileFile);
@@ -163,6 +142,19 @@ void EnvironmentInjector::commit()
     newBashProfile.flush();
     bashProfileFile.close();
     newBashProfileFile.commit();
+    const bool changed = originalEnv_ != env_;
+    originalEnv_ = env_;
+    return changed;
+}
+
+QStringList EnvironmentInjector::getUserPath()
+{
+    return env_[kEnvPath].split(kEnvPathSeparator, Qt::SkipEmptyParts);
+}
+
+void EnvironmentInjector::setUserPath(const QStringList &path)
+{
+    setEnv(kEnvPath, path.join(kEnvPathSeparator));
 }
 
 } // namespace qtchooser

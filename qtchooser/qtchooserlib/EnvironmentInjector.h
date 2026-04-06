@@ -32,32 +32,33 @@ public:
      * @param val
      * @return `TRUE` if the value has changed from its previous value.
      */
-    bool setEnv(const QString &var, const QString &val);
+    void setEnv(const QString &var, const QString &val);
 
     /**
      * Add @p path to the system PATH variable.
      * @param path
      * @return `TRUE` if the value has changed from its previous value.
      */
-    bool addToPath(const std::filesystem::path &path);
+    void addToPath(const std::filesystem::path &path);
 
     /**
      * Remove @p path from the system PATH variable.
      * @param path
      * @return `TRUE` if the value has changed from its previous value.
      */
-    bool removeFromPath(const std::filesystem::path &path);
+    void removeFromPath(const std::filesystem::path &path);
 
     /**
      * Save the changes to the system.
      */
-    void commit();
+    bool commit();
 
 private:
+    Environment originalEnv_;
     Environment env_;
 
     QStringList getUserPath();
-    bool setUserPath(const QStringList &path);
+    void setUserPath(const QStringList &path);
 };
 
 } // namespace qtchooser
