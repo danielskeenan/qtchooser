@@ -14,6 +14,7 @@
 TEST_CASE("QtFinder")
 {
     qtchooser::QtFinder finder;
+    finder.addSearchPath(qtchooser::test::kHostQtPrefix);
     QSignalSpy finderSpy(&finder, &qtchooser::QtFinder::found);
     finder.start();
 
