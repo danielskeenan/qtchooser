@@ -7,13 +7,14 @@
  */
 
 #include "QtInfo.h"
+#include "FindFile.h"
 #include <spdlog/spdlog.h>
 #include <QFuture>
+#include <QJsonDocument>
+#include <QJsonValue>
 #include <QProcess>
 #include <QStandardPaths>
 #include <QtConcurrentRun>
-
-#include "FindFile.h"
 
 namespace qtchooser {
 
@@ -64,20 +65,24 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         info.name_ = QString::fromUtf8(qtdiag.readLine()).trimmed();
 
         QProcess qtpaths;
-        qtpaths.start(QString::fromStdString(qtpathsPath->string()), {"--qt-version"});
+        qtpaths.start(
+            QString::fromStdString(qtpathsPath->string()), {"--query", "--query-format", "json"});
         qtpaths.waitForFinished();
         if (qtpaths.exitStatus() != QProcess::NormalExit || qtpaths.exitCode() != 0) {
             SPDLOG_ERROR("qtpaths exited with code {}", qtpaths.exitCode());
             return std::unexpected(Error::BadInstall);
         }
         qtpaths.setReadChannel(QProcess::StandardOutput);
-        info.version_ = QVersionNumber::fromString(QString::fromUtf8(qtpaths.readLine()).trimmed());
+        const auto qtquery = QJsonDocument::fromJson(qtpaths.readAllStandardOutput());
+        info.version_ = QVersionNumber::fromString(qtquery["QT_VERSION"].toStringView());
         if (info.version_.isNull()) {
             SPDLOG_ERROR("Unexpected version number");
             return std::unexpected(Error::BadData);
         }
+        info.binDir_ = qtquery["QT_INSTALL_BINS"].toString().toStdString();
+        const std::filesystem::path libDir(qtquery["QT_INSTALL_LIBS"].toString().toStdString());
         const auto cmakePackageFile
-            = findFile(std::format("Qt{}Config.cmake", info.version_.majorVersion()), info.prefix_);
+            = findFile(std::format("Qt{}Config.cmake", info.version_.majorVersion()), libDir);
         if (!cmakePackageFile) {
             SPDLOG_ERROR("Could not find CMake package file.");
             return std::unexpected(Error::BadInstall);
