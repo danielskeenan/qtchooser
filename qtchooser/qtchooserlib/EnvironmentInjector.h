@@ -15,16 +15,6 @@
 namespace qtchooser {
 
 /**
- * Create symlinks of all executables from @p from in the directory @p to.
- *
- * All links created from previous calls to this function will be removed first.
- *
- * @param from
- * @param to
- */
-void linkBinaries(const std::filesystem::path &from, const std::filesystem::path &to);
-
-/**
  * Set the persistent environment variable @p var to @p val.
  *
  * @param var

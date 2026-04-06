@@ -8,6 +8,7 @@
 
 #include "EnvironmentInjector.h"
 #include <Windows.h>
+#include <iostream>
 #include <spdlog/spdlog.h>
 #include <QProcessEnvironment>
 #include <QSettings>
@@ -58,29 +59,19 @@ bool setUserPath(const QStringList &path)
 
 bool addToPath(const std::filesystem::path &path)
 {
-    const auto currentPath = getPath();
-    if (currentPath.contains(QString::fromStdString(path.string()))) {
+    auto userPath = getUserPath();
+    if (userPath.contains(QString::fromStdString(path.string()))) {
         return false;
     }
 
-    auto userPath = getUserPath();
     userPath.push_back(QString::fromStdString(path.string()));
     return setUserPath(userPath);
 }
 
 bool removeFromPath(const std::filesystem::path &path)
 {
-    const auto currentPath = getPath();
-    if (!currentPath.contains(QString::fromStdString(path.string()))) {
-        return false;
-    }
-
-    // Can't remove if it's in the system PATH, so need to determine that first. At this point we know
-    // the path is set *somewhere* so if it doesn't appear in the user PATH we can be sure it's in
-    // the system PATH.
     auto userPath = getUserPath();
     if (!userPath.contains(QString::fromStdString(path.string()))) {
-        SPDLOG_WARN("Cannot remove {} from the system path.", path.string());
         return false;
     }
 

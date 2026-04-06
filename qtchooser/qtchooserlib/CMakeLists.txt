@@ -1,7 +1,8 @@
 set(TARGET qtchooserlib)
 
 qt_add_library(${TARGET} STATIC
-        EnvironmentInjector.cpp
+        CurrentChosen.cpp
+        CurrentChosen.h
         EnvironmentInjector.h
         QtChooser.cpp
         QtChooser.h

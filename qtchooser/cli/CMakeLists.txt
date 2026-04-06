@@ -2,6 +2,8 @@ set(TARGET qtchooser)
 
 qt_add_executable(${TARGET}
         main.cpp
+        ChooseRunner.cpp
+        ChooseRunner.h
         ListRunner.cpp
         ListRunner.h
 )

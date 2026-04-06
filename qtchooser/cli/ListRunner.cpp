@@ -12,19 +12,24 @@
 #include <QCollator>
 #include <QCoreApplication>
 
+#include "qtchooser/qtchooserlib/CurrentChosen.h"
+
 namespace qtchooser {
 
 ListRunner::ListRunner(const ListCliOptions &cliOptions, QObject *parent) :
     QObject(parent), finder_(new QtFinder(this))
 {
+    for (const auto &path : cliOptions.searchPaths) {
+        finder_->addSearchPath(path);
+    }
+
     connect(finder_, &QtFinder::found, this, &ListRunner::found);
     connect(finder_, &QtFinder::finished, this, &ListRunner::finished);
-    connect(finder_, &QtFinder::finished, finder_, &QtFinder::deleteLater);
 }
 
 void ListRunner::start()
 {
-    std::cout << "Searching for Qt installations..." << std::endl;
+    std::cout << qPrintable(tr("Searching for Qt installations...")) << std::endl;
     finder_->start();
 }
 
@@ -47,17 +52,23 @@ void ListRunner::finished()
     // Output a table.
     tabulate::Table table;
     // Header
-    table.add_row({"Version", "Path", "Description"});
+    table.add_row(
+        {qPrintable(tr("Version")), qPrintable(tr("Path")), qPrintable(tr("Description"))});
     table.row(0)
         .format()
         .font_align(tabulate::FontAlign::center)
         .color(tabulate::Color::yellow)
         .font_style({tabulate::FontStyle::bold});
+    const CurrentChosen currentChosen;
     for (const auto &info : found_) {
         table.add_row(
             {info.version().toString().toStdString(),
              info.prefix().string(),
              info.name().toStdString()});
+        if (info.prefix() == currentChosen.prefix()) {
+            auto row = table.row(table.size() - 1);
+            row.format().color(tabulate::Color::green).font_style({tabulate::FontStyle::italic});
+        }
     }
 
     std::cout << table << std::endl;

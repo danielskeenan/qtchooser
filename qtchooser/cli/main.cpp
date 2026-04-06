@@ -6,6 +6,7 @@
  * @copyright GPL-3.0
  */
 
+#include "ChooseRunner.h"
 #include "ListRunner.h"
 #include "qtchooser/qtchooser_config.h"
 #include <argparse/argparse.hpp>
@@ -15,27 +16,26 @@
 #include <QStandardPaths>
 #include <QTimer>
 
-struct ChooseCliOptions
-{
-    std::filesystem::path binDir
-        = std::filesystem::path(
-              QStandardPaths::writableLocation(QStandardPaths::HomeLocation).toStdString())
-          / "qtbin";
-};
-
-using CliOptions = std::variant<qtchooser::ListCliOptions, ChooseCliOptions>;
+using CliOptions = std::variant<qtchooser::ListCliOptions, qtchooser::ChooseCliOptions>;
 
 CliOptions parseCommandLine(int argc, char *argv[])
 {
     argparse::ArgumentParser
         parser(qApp->applicationName().toStdString(), qApp->applicationVersion().toStdString());
 
+    // List
     argparse::ArgumentParser cmdList("list");
     cmdList.add_description("List Qt installations.");
     cmdList.add_argument("--path")
         .help("Additional path to search.")
         .nargs(argparse::nargs_pattern::any);
     parser.add_subparser(cmdList);
+
+    // Choose
+    argparse::ArgumentParser cmdChoose("choose");
+    cmdChoose.add_description("Choose a specific Qt installation.");
+    cmdChoose.add_argument("path").help("Qt installation prefix.").nargs(1);
+    parser.add_subparser(cmdChoose);
 
     try {
         parser.parse_args(argc, argv);
@@ -55,25 +55,40 @@ CliOptions parseCommandLine(int argc, char *argv[])
         }
 
         return cliOptions;
+    } else if (parser.is_subcommand_used(cmdChoose)) {
+        qtchooser::ChooseCliOptions cliOptions;
+        const std::string path = cmdChoose.get("path");
+        cliOptions.prefix = path;
+        if (!std::filesystem::is_directory(cliOptions.prefix)) {
+            std::cerr << "Not a directory: " << path << std::endl;
+            std::exit(1);
+        }
+        return cliOptions;
     }
 
     std::cerr << parser << std::endl;
     std::exit(1);
 }
 
+template<class Runner_T, class CliOptions_T>
+void run(const CliOptions_T &cliOptions)
+{
+    QTimer::singleShot(0, [&cliOptions]() {
+        auto runner = new Runner_T(cliOptions);
+        runner->start();
+    });
+}
+
 struct Runner
 {
     void operator()(const qtchooser::ListCliOptions &cliOptions) const
     {
-        QTimer::singleShot(0, [&cliOptions]() {
-            auto runner = new qtchooser::ListRunner(cliOptions);
-            runner->start();
-        });
+        run<qtchooser::ListRunner>(cliOptions);
     }
 
-    void operator()(const ChooseCliOptions &cliOptions) const
+    void operator()(const qtchooser::ChooseCliOptions &cliOptions) const
     {
-        QTimer::singleShot(0, [&cliOptions]() { qApp->quit(); });
+        run<qtchooser::ChooseRunner>(cliOptions);
     }
 };
 

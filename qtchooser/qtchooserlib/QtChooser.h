@@ -29,14 +29,6 @@ public:
      */
     void choose(const QtInfo &info);
 
-    /**
-     * The directory to place links to Qt's binaries.
-     *
-     * If it is not in the system PATH, it will be added.
-     */
-    [[nodiscard]] std::filesystem::path binDir() const { return binDir_; }
-    void setBinDir(const std::filesystem::path &binDir) { binDir_ = binDir; }
-
 Q_SIGNALS:
     /**
      * Emitted when environment variables have changed.
@@ -44,9 +36,6 @@ Q_SIGNALS:
      * On some platforms, this requires the user logout and back in.
      */
     void envVarsChanged();
-
-private:
-    std::filesystem::path binDir_;
 };
 
 } // namespace qtchooser

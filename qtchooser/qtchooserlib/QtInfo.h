@@ -39,7 +39,8 @@ public:
 
     explicit QtInfo();
     auto operator<=>(const QtInfo &) const = default;
-    static QFuture<std::expected<QtInfo, QtInfo::Error>> get(const std::filesystem::path &path);
+    using GetResult = std::expected<QtInfo, QtInfo::Error>;
+    static QFuture<GetResult> get(const std::filesystem::path &path);
     [[nodiscard]] QString name() const { return name_; }
     [[nodiscard]] QVersionNumber version() const { return version_; }
     [[nodiscard]] std::filesystem::path prefix() const { return prefix_; }

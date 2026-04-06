@@ -42,9 +42,9 @@ std::optional<std::filesystem::path> findFile(
     return {};
 }
 
-QFuture<std::expected<QtInfo, QtInfo::Error>> QtInfo::get(const std::filesystem::path &path)
+QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
 {
-    return QtConcurrent::run([path]() -> std::expected<QtInfo, QtInfo::Error> {
+    return QtConcurrent::run([path]() -> QtInfo::GetResult {
         SPDLOG_DEBUG("Inspecting {}", path.string());
         QtInfo info;
 

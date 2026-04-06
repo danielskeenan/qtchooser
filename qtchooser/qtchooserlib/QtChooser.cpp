@@ -7,24 +7,30 @@
  */
 
 #include "QtChooser.h"
+#include "CurrentChosen.h"
 #include "EnvironmentInjector.h"
-#include <format>
+#include <QStandardPaths>
 
 namespace qtchooser {
 
 void QtChooser::choose(const QtInfo &info)
 {
-    linkBinaries(info.binDir(), binDir_);
-
     bool envChanged = false;
+
+    CurrentChosen currentChosen;
+    if (currentChosen.isValid()) {
+        envChanged |= removeFromPath(currentChosen.binDir());
+    }
     envChanged |= setEnv("QT_ROOT_DIR", QString::fromStdString(info.prefix().string()));
     envChanged |= setEnv(
         QString("Qt%1_DIR").arg(info.version().majorVersion()),
         QString::fromStdString(info.cmakePackageDir().string()));
     envChanged |= setEnv("Qt_DIR", QString::fromStdString(info.cmakePackageDir().string()));
+    envChanged |= addToPath(info.binDir());
     if (envChanged) {
         Q_EMIT(envVarsChanged());
     }
+    currentChosen.setInfo(info);
 }
 
 } // namespace qtchooser
