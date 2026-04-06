@@ -13,33 +13,13 @@
 #include <QStandardPaths>
 #include <QtConcurrentRun>
 
+#include "FindFile.h"
+
 namespace qtchooser {
 
 QtInfo::QtInfo()
 {
     qRegisterMetaType<QtInfo>();
-}
-
-/**
- * Similar to CMake's find_file.
- *
- * Find the first instance of a filename in searchDir.
- * @param name
- * @param searchDir
- * @return
- */
-std::optional<std::filesystem::path> findFile(
-    const std::string &name, const std::filesystem::path &searchDir)
-{
-    for (const auto &entry : std::filesystem::recursive_directory_iterator(
-             searchDir, std::filesystem::directory_options::skip_permission_denied)) {
-        if (std::filesystem::is_regular_file(std::filesystem::canonical(entry.path()))
-            && entry.path().filename() == name) {
-            return entry.path();
-        }
-    }
-
-    return {};
 }
 
 QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
@@ -61,21 +41,20 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         info.binDir_ = info.prefix_ / "bin";
 
         // Find qtdiag and qtpaths.
-        const QStringList qtBinDirs{QString::fromStdString((info.binDir_).string())};
-        const auto qtdiagPath = QStandardPaths::findExecutable("qtdiag", qtBinDirs);
-        if (qtdiagPath.isEmpty()) {
+        const auto qtdiagPath = findQtDiag(info.binDir_);
+        if (!qtdiagPath) {
             SPDLOG_ERROR("Could not find qtdiag.");
             return std::unexpected(Error::BadInstall);
         }
-        const auto qtpathsPath = QStandardPaths::findExecutable("qtpaths", qtBinDirs);
-        if (qtpathsPath.isEmpty()) {
+        const auto qtpathsPath = findQtPaths(info.binDir_);
+        if (!qtpathsPath) {
             SPDLOG_ERROR("Cound not find qtpaths.");
             return std::unexpected(Error::BadInstall);
         }
 
         // Ask about this installation.
         QProcess qtdiag;
-        qtdiag.start(qtdiagPath);
+        qtdiag.start(QString::fromStdString(qtdiagPath->string()));
         qtdiag.waitForFinished();
         if (qtdiag.exitStatus() != QProcess::NormalExit || qtdiag.exitCode() != 0) {
             SPDLOG_ERROR("qtdiag exited with code {}", qtdiag.exitCode());
@@ -85,7 +64,7 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         info.name_ = QString::fromUtf8(qtdiag.readLine()).trimmed();
 
         QProcess qtpaths;
-        qtpaths.start(qtpathsPath, {"--qt-version"});
+        qtpaths.start(QString::fromStdString(qtpathsPath->string()), {"--qt-version"});
         qtpaths.waitForFinished();
         if (qtpaths.exitStatus() != QProcess::NormalExit || qtpaths.exitCode() != 0) {
             SPDLOG_ERROR("qtpaths exited with code {}", qtpaths.exitCode());

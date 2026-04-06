@@ -13,7 +13,8 @@ namespace qtchooser {
 
 bool setEnv(const QString &var, const QString &val)
 {
-    SPDLOG_WARN("Could not persist env var {}={}", var, val);
+    SPDLOG_WARN("Could not persist env var {}={}", var.toStdString(), val.toStdString());
+    return false;
 }
 
 QStringList getPath()

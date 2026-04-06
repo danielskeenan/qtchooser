@@ -10,7 +10,7 @@
 #define QTCHOOSER_ENVIRONMENTINJECTOR_H
 
 #include <filesystem>
-#include <qcontainerfwd.h>
+#include <QStringList>
 
 namespace qtchooser {
 

@@ -11,6 +11,8 @@
 #include <spdlog/spdlog.h>
 #include <QDir>
 #include <QStandardPaths>
+
+#include "FindFile.h"
 #include <queue>
 
 namespace qtchooser {
@@ -61,10 +63,7 @@ void QtFinder::addSearchPath(const std::filesystem::path &path)
 bool QtFinder::isPossibleQtDir(const std::filesystem::path &path)
 {
     // Look for qtpaths as a sign that this might have a Qt installation.
-    return std::filesystem::is_directory(path / "bin")
-           && !QStandardPaths::findExecutable(
-                   "qtpaths", {QString::fromStdString((path / "bin").string())})
-                   .isEmpty();
+    return std::filesystem::is_directory(path / "bin") && findQtPaths(path);
 }
 
 } // namespace qtchooser

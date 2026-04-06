@@ -4,6 +4,8 @@ qt_add_library(${TARGET} STATIC
         CurrentChosen.cpp
         CurrentChosen.h
         EnvironmentInjector.h
+        FindFile.cpp
+        FindFile.h
         QtChooser.cpp
         QtChooser.h
         QtFinder.cpp
