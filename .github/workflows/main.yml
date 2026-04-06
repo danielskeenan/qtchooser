@@ -56,7 +56,7 @@ jobs:
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install libcurl4-openssl-dev qt6-base-dev
+          sudo apt-get -y install libcurl4-openssl-dev qt6-base-dev qt6-tools-dev-tools
       - name: Setup MSVC (Windows)
         if: ${{runner.os == 'Windows'}}
         uses: TheMrMilchmann/setup-msvc-dev@v3
