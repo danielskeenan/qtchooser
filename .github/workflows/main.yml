@@ -22,9 +22,9 @@ jobs:
         system:
           - os: ubuntu-latest
             cmake_preset: linux-release
-#          - os: windows-latest
-#            cmake_preset: windows-release
-#            qt_arch: win64_msvc2022_64
+          - os: windows-latest
+            cmake_preset: windows-release
+            qt_arch: win64_msvc2022_64
     runs-on: ${{matrix.system.os}}
     steps:
       #######################
