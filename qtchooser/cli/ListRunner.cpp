@@ -66,7 +66,7 @@ void ListRunner::finished()
              info.prefix().string(),
              info.name().toStdString()});
         if (info.prefix() == currentChosen.prefix()) {
-            auto row = table.row(table.size() - 1);
+            auto &row = table.row(table.size() - 1);
             row.format().color(tabulate::Color::green).font_style({tabulate::FontStyle::italic});
         }
     }
