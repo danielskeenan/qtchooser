@@ -8,7 +8,6 @@
 
 #include "EnvironmentInjector.h"
 #include <Windows.h>
-#include <iostream>
 #include <spdlog/spdlog.h>
 #include <QProcessEnvironment>
 #include <QSettings>

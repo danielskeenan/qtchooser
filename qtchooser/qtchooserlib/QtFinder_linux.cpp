@@ -1,8 +1,8 @@
 /**
- * @file QtFinder_win.cpp
+ * @file QtFinder_linux.cpp
  *
  * @author Dan Keenan
- * @date 4/5/2026
+ * @date 4/6/26
  * @copyright GPL-3.0
  */
 
@@ -13,8 +13,10 @@ namespace qtchooser {
 std::vector<std::filesystem::path> QtFinder::defaultSearchPaths()
 {
     return {
+        std::filesystem::path("/usr"),
+        std::filesystem::path("/usr/local"),
         // Default installation path from official Qt installer.
-        QDir::root().filesystemPath() / "Qt"
+        QDir::home().filesystemPath() / "Qt",
     };
 }
-}
+} // namespace qtchooser

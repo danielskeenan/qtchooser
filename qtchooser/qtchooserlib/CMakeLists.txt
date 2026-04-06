@@ -19,6 +19,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
             EnvironmentInjector_win.cpp
             QtFinder_win.cpp
     )
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_sources(${TARGET} PRIVATE
+            EnvironmentInjector_linux.cpp
+            QtFinder_linux.cpp
+    )
 else ()
     target_sources(${TARGET} PRIVATE
             EnvironmentInjector_none.cpp

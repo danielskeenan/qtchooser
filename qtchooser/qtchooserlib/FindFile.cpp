@@ -18,8 +18,7 @@ std::optional<std::filesystem::path> findFile(
 {
     for (const auto &entry : std::filesystem::recursive_directory_iterator(
              searchDir, std::filesystem::directory_options::skip_permission_denied)) {
-        if (std::filesystem::is_regular_file(std::filesystem::canonical(entry.path()))
-            && entry.path().filename() == name) {
+        if (std::filesystem::is_regular_file(entry.path()) && entry.path().filename() == name) {
             return entry.path();
         }
     }

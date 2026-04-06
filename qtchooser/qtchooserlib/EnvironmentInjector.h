@@ -10,38 +10,55 @@
 #define QTCHOOSER_ENVIRONMENTINJECTOR_H
 
 #include <filesystem>
+#include <QHash>
 #include <QStringList>
 
 namespace qtchooser {
 
 /**
- * Set the persistent environment variable @p var to @p val.
- *
- * @param var
- * @param val
- * @return `TRUE` if the value has changed from its previous value.
+ * Persist env vars in a platform-specific way.
  */
-bool setEnv(const QString &var, const QString &val);
+class EnvironmentInjector
+{
+public:
+    using Environment = QHash<QString, QString>;
 
-/**
- * Get the current system PATH.
- * @return
- */
-QStringList getPath();
+    explicit EnvironmentInjector();
 
-/**
- * Add @p path to the system PATH variable.
- * @param path
- * @return `TRUE` if the value has changed from its previous value.
- */
-bool addToPath(const std::filesystem::path& path);
+    /**
+     * Set the persistent environment variable @p var to @p val.
+     *
+     * @param var
+     * @param val
+     * @return `TRUE` if the value has changed from its previous value.
+     */
+    bool setEnv(const QString &var, const QString &val);
 
-/**
- * Remove @p path from the system PATH variable.
- * @param path
- * @return `TRUE` if the value has changed from its previous value.
- */
-bool removeFromPath(const std::filesystem::path& path);
+    /**
+     * Add @p path to the system PATH variable.
+     * @param path
+     * @return `TRUE` if the value has changed from its previous value.
+     */
+    bool addToPath(const std::filesystem::path &path);
+
+    /**
+     * Remove @p path from the system PATH variable.
+     * @param path
+     * @return `TRUE` if the value has changed from its previous value.
+     */
+    bool removeFromPath(const std::filesystem::path &path);
+
+    /**
+     * Save the changes to the system.
+     */
+    void commit();
+
+private:
+    Environment env_;
+
+    QStringList getUserPath();
+    bool setUserPath(const QStringList &path);
+};
 
 } // namespace qtchooser
 

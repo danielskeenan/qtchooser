@@ -41,12 +41,12 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         info.binDir_ = info.prefix_ / "bin";
 
         // Find qtdiag and qtpaths.
-        const auto qtdiagPath = findQtDiag(info.binDir_);
+        const auto qtdiagPath = findQtDiag(info.prefix_);
         if (!qtdiagPath) {
             SPDLOG_ERROR("Could not find qtdiag.");
             return std::unexpected(Error::BadInstall);
         }
-        const auto qtpathsPath = findQtPaths(info.binDir_);
+        const auto qtpathsPath = findQtPaths(info.prefix_);
         if (!qtpathsPath) {
             SPDLOG_ERROR("Cound not find qtpaths.");
             return std::unexpected(Error::BadInstall);
