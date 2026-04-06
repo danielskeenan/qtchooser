@@ -8,5 +8,11 @@
   }, {
     "name" : "catch2",
     "version>=" : "3.11.0"
+  }, {
+    "name" : "argparse",
+    "version>=" : "3.2"
+  }, {
+    "name" : "tabulate",
+    "version>=" : "1.5"
   } ]
 }
