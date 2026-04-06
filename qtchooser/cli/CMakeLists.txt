@@ -18,6 +18,18 @@ target_link_libraries(${TARGET} PRIVATE
         tabulate::tabulate
 )
 
+set_target_properties(${TARGET} PROPERTIES
+        QT_WINDOWS_APP_PROJECT_IDENTIFIER "org.dankeenan.${TARGET}"
+)
+
+install(TARGETS ${TARGET} RUNTIME)
+qt_generate_deploy_app_script(
+        TARGET ${TARGET}
+        OUTPUT_SCRIPT DEPLOY_SCRIPT
+        NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT "${DEPLOY_SCRIPT}")
+
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
     qt_generate_deploy_app_script(
             TARGET ${TARGET}
