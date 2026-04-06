@@ -30,14 +30,7 @@ jobs:
       #######################
       # SETUP
       #######################
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
-      - name: Set CMake Parallel level
-        run: |
-          echo "CMAKE_BUILD_PARALLEL_LEVEL=${{ steps.cpu-cores.outputs.count }}" >> ${GITHUB_ENV}
-          echo "CTEST_PARALLEL_LEVEL=1" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup vcpkg
         run: |
           git clone https://github.com/microsoft/vcpkg.git .vcpkg
@@ -46,7 +39,7 @@ jobs:
       - name: Create vcpkg binary cache
         run: mkdir -p "${VCPKG_DEFAULT_BINARY_CACHE}"
       - name: Restore vcpkg binary cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json') }}
@@ -93,7 +86,7 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: ctest
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ failure() }}
         with:
           name: test_results_${{runner.os}}
@@ -106,13 +99,13 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: cpack -B "${BUILD_DIR}/packages"
       - name: Upload failed package artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ failure() }}
         with:
           name: failed_package_${{runner.os}}
           path: ${{env.BUILD_DIR}}/packages
       - name: Upload packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: packages_${{runner.os}}_${{runner.arch}}
           path: ${{env.BUILD_DIR}}/packages/*.*
