@@ -31,7 +31,7 @@ void linkBinaries(const std::filesystem::path &from, const std::filesystem::path
  * @param val
  * @return `TRUE` if the value has changed from its previous value.
  */
-bool setEnv(const std::string &var, const std::string &val);
+bool setEnv(const QString &var, const QString &val);
 
 /**
  * Get the current system PATH.

@@ -11,7 +11,7 @@
 
 namespace qtchooser {
 
-bool setEnv(const std::string &var, const std::string &val)
+bool setEnv(const QString &var, const QString &val)
 {
     SPDLOG_WARN("Could not persist env var {}={}", var, val);
 }

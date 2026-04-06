@@ -17,10 +17,11 @@ void QtChooser::choose(const QtInfo &info)
     linkBinaries(info.binDir(), binDir_);
 
     bool envChanged = false;
-    envChanged |= setEnv("QT_ROOT_DIR", info.prefix().string());
+    envChanged |= setEnv("QT_ROOT_DIR", QString::fromStdString(info.prefix().string()));
     envChanged |= setEnv(
-        std::format("Qt{}_DIR", info.version().majorVersion()), info.cmakePackageDir().string());
-    envChanged |= setEnv("Qt_DIR", info.cmakePackageDir().string());
+        QString("Qt%1_DIR").arg(info.version().majorVersion()),
+        QString::fromStdString(info.cmakePackageDir().string()));
+    envChanged |= setEnv("Qt_DIR", QString::fromStdString(info.cmakePackageDir().string()));
     if (envChanged) {
         Q_EMIT(envVarsChanged());
     }

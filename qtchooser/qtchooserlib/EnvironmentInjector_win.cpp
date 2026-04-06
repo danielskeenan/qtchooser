@@ -7,6 +7,7 @@
  */
 
 #include "EnvironmentInjector.h"
+#include <Windows.h>
 #include <spdlog/spdlog.h>
 #include <QProcessEnvironment>
 #include <QSettings>
@@ -21,13 +22,20 @@ QSettings userEnvironment()
     return QSettings(R"(HKEY_CURRENT_USER\Environment)", QSettings::NativeFormat);
 }
 
-bool setEnv(const std::string &var, const std::string &val)
+bool setEnv(const QString &var, const QString &val)
 {
     auto settings = userEnvironment();
     const auto oldValue = settings.value(var);
-    const auto newValue = QString::fromStdString(val);
-    settings.setValue(var, newValue);
-    return oldValue != newValue;
+    if (oldValue == val) {
+        return false;
+    }
+
+    settings.setValue(var, val);
+    settings.sync();
+    // https://learn.microsoft.com/en-us/windows/win32/procthread/environment-variables
+    PostMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) std::addressof("Environment"));
+
+    return true;
 }
 
 QStringList getPath()
@@ -37,6 +45,17 @@ QStringList getPath()
     return envPath.split(kEnvPathSeparator, Qt::SkipEmptyParts);
 }
 
+QStringList getUserPath()
+{
+    auto settings = userEnvironment();
+    return settings.value(kEnvPath).toString().split(kEnvPathSeparator, Qt::SkipEmptyParts);
+}
+
+bool setUserPath(const QStringList &path)
+{
+    return setEnv(kEnvPath, path.join(kEnvPathSeparator));
+}
+
 bool addToPath(const std::filesystem::path &path)
 {
     const auto currentPath = getPath();
@@ -44,12 +63,9 @@ bool addToPath(const std::filesystem::path &path)
         return false;
     }
 
-    auto settings = userEnvironment();
-    auto userPath = settings.value(kEnvPath).toString().split(kEnvPathSeparator, Qt::SkipEmptyParts);
+    auto userPath = getUserPath();
     userPath.push_back(QString::fromStdString(path.string()));
-    settings.setValue(kEnvPath, userPath.join(kEnvPathSeparator));
-
-    return true;
+    return setUserPath(userPath);
 }
 
 bool removeFromPath(const std::filesystem::path &path)
@@ -59,17 +75,17 @@ bool removeFromPath(const std::filesystem::path &path)
         return false;
     }
 
-    // Can't remove if it's in the system path, so need to determine that first.
-    auto settings = userEnvironment();
-    auto userPath = settings.value(kEnvPath).toString().split(kEnvPathSeparator, Qt::SkipEmptyParts);
+    // Can't remove if it's in the system PATH, so need to determine that first. At this point we know
+    // the path is set *somewhere* so if it doesn't appear in the user PATH we can be sure it's in
+    // the system PATH.
+    auto userPath = getUserPath();
     if (!userPath.contains(QString::fromStdString(path.string()))) {
         SPDLOG_WARN("Cannot remove {} from the system path.", path.string());
         return false;
     }
 
     userPath.removeAll(QString::fromStdString(path.string()));
-    settings.setValue(kEnvPath, userPath.join(kEnvPathSeparator));
-    return true;
+    return setUserPath(userPath);
 }
 
 } // namespace qtchooser

@@ -34,6 +34,7 @@ void linkBinaries(const std::filesystem::path &from, const std::filesystem::path
 
     // Create new links.
     lastBinaries.clear();
+    std::filesystem::create_directories(to);
     for (const auto &entry : std::filesystem::directory_iterator(from)) {
         const auto path = std::filesystem::canonical(entry.path());
         QFileInfo fileInfo(path);
