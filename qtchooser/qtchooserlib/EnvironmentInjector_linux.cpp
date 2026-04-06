@@ -71,25 +71,6 @@ EnvironmentInjector::Environment getUserEnvironment()
 EnvironmentInjector::EnvironmentInjector() : originalEnv_(getUserEnvironment()), env_(originalEnv_)
 {}
 
-void EnvironmentInjector::setEnv(const QString &var, const QString &val)
-{
-    env_[var] = val;
-}
-
-void EnvironmentInjector::addToPath(const std::filesystem::path &path)
-{
-    auto userPath = getUserPath();
-    userPath.push_back(QString::fromStdString(path.string()));
-    setUserPath(userPath);
-}
-
-void EnvironmentInjector::removeFromPath(const std::filesystem::path &path)
-{
-    auto userPath = getUserPath();
-    userPath.removeAll(QString::fromStdString(path.string()));
-    setUserPath(userPath);
-}
-
 bool EnvironmentInjector::commit()
 {
     auto bashProfileFile = getBashProfile();

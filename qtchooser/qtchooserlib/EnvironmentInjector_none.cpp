@@ -11,28 +11,23 @@
 
 namespace qtchooser {
 
-bool setEnv(const QString &var, const QString &val)
+EnvironmentInjector::EnvironmentInjector() {}
+
+bool EnvironmentInjector::commit()
 {
-    SPDLOG_WARN("Could not persist env var {}={}", var.toStdString(), val.toStdString());
+    SPDLOG_WARN("This platform does not support environment injection.");
     return false;
 }
 
-QStringList getPath()
+QStringList EnvironmentInjector::getUserPath()
 {
-    SPDLOG_WARN("Unknown PATH on this platform.");
+    SPDLOG_WARN("This platform does not support environment injection.");
     return {};
 }
 
-bool addToPath(const std::filesystem::path &path)
+void EnvironmentInjector::setUserPath(const QStringList &path)
 {
-    SPDLOG_WARN("Unknown PATH on this platform.");
-    return false;
-}
-
-bool removeFromPath(const std::filesystem::path &path)
-{
-    SPDLOG_WARN("Unknown PATH on this platform.");
-    return false;
+    SPDLOG_WARN("This platform does not support environment injection.");
 }
 
 } // namespace qtchooser

@@ -8,74 +8,50 @@
 
 #include "EnvironmentInjector.h"
 #include <Windows.h>
-#include <spdlog/spdlog.h>
-#include <QProcessEnvironment>
 #include <QSettings>
 
 namespace qtchooser {
 
+constexpr auto kEnvRegKey = R"(HKEY_CURRENT_USER\Environment)";
 constexpr auto kEnvPath = "Path";
 constexpr auto kEnvPathSeparator = ';';
 
-QSettings userEnvironment()
+EnvironmentInjector::Environment getUserEnvironment()
 {
-    return QSettings(R"(HKEY_CURRENT_USER\Environment)", QSettings::NativeFormat);
-}
-
-bool setEnv(const QString &var, const QString &val)
-{
-    auto settings = userEnvironment();
-    const auto oldValue = settings.value(var);
-    if (oldValue == val) {
-        return false;
+    QSettings settings(kEnvRegKey, QSettings::NativeFormat);
+    EnvironmentInjector::Environment env;
+    for (const auto &var : settings.allKeys()) {
+        env[var] = settings.value(var).toString();
     }
 
-    settings.setValue(var, val);
+    return env;
+}
+
+EnvironmentInjector::EnvironmentInjector() : originalEnv_(getUserEnvironment()), env_(originalEnv_)
+{}
+
+bool EnvironmentInjector::commit()
+{
+    QSettings settings(kEnvRegKey, QSettings::NativeFormat);
+    settings.clear();
+    for (const auto &[var, val] : env_.asKeyValueRange()) {
+        settings.setValue(var, val);
+    }
     settings.sync();
-    // https://learn.microsoft.com/en-us/windows/win32/procthread/environment-variables
-    PostMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) std::addressof("Environment"));
 
-    return true;
+    const bool changed = originalEnv_ != env_;
+    originalEnv_ = env_;
+    return changed;
 }
 
-QStringList getPath()
+QStringList EnvironmentInjector::getUserPath()
 {
-    const auto env = QProcessEnvironment::systemEnvironment();
-    const auto envPath = env.value(kEnvPath);
-    return envPath.split(kEnvPathSeparator, Qt::SkipEmptyParts);
+    return env_[kEnvPath].split(kEnvPathSeparator, Qt::SkipEmptyParts);
 }
 
-QStringList getUserPath()
+void EnvironmentInjector::setUserPath(const QStringList &path)
 {
-    auto settings = userEnvironment();
-    return settings.value(kEnvPath).toString().split(kEnvPathSeparator, Qt::SkipEmptyParts);
-}
-
-bool setUserPath(const QStringList &path)
-{
-    return setEnv(kEnvPath, path.join(kEnvPathSeparator));
-}
-
-bool addToPath(const std::filesystem::path &path)
-{
-    auto userPath = getUserPath();
-    if (userPath.contains(QString::fromStdString(path.string()))) {
-        return false;
-    }
-
-    userPath.push_back(QString::fromStdString(path.string()));
-    return setUserPath(userPath);
-}
-
-bool removeFromPath(const std::filesystem::path &path)
-{
-    auto userPath = getUserPath();
-    if (!userPath.contains(QString::fromStdString(path.string()))) {
-        return false;
-    }
-
-    userPath.removeAll(QString::fromStdString(path.string()));
-    return setUserPath(userPath);
+    setEnv(kEnvPath, path.join(kEnvPathSeparator));
 }
 
 } // namespace qtchooser

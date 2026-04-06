@@ -30,8 +30,8 @@ std::optional<std::filesystem::path> findProgram(
     const QStringList &names, const std::filesystem::path &prefix)
 {
     const QStringList searchPaths{
-        QString::fromStdString(prefix / "bin"),
-        QString::fromStdString(prefix / "sbin"),
+        QString::fromStdString((prefix / "bin").string()),
+        QString::fromStdString((prefix / "sbin").string()),
     };
     for (const auto &name : names) {
         const auto found = QStandardPaths::findExecutable(name, searchPaths);

@@ -3,6 +3,7 @@ set(TARGET qtchooserlib)
 qt_add_library(${TARGET} STATIC
         CurrentChosen.cpp
         CurrentChosen.h
+        EnvironmentInjector.cpp
         EnvironmentInjector.h
         FindFile.cpp
         FindFile.h
