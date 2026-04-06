@@ -74,7 +74,7 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         }
         qtpaths.setReadChannel(QProcess::StandardOutput);
         const auto qtquery = QJsonDocument::fromJson(qtpaths.readAllStandardOutput());
-        info.version_ = QVersionNumber::fromString(qtquery["QT_VERSION"].toStringView());
+        info.version_ = QVersionNumber::fromString(qtquery["QT_VERSION"].toString());
         if (info.version_.isNull()) {
             SPDLOG_ERROR("Unexpected version number");
             return std::unexpected(Error::BadData);
