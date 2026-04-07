@@ -32,6 +32,7 @@ EnvironmentInjector::EnvironmentInjector() : originalEnv_(getUserEnvironment()),
 
 bool EnvironmentInjector::commit()
 {
+    //TODO: Use native registry functions, using QSettings clobbers the registry!!!!!!!
     QSettings settings(kEnvRegKey, QSettings::NativeFormat);
     settings.clear();
     for (const auto &[var, val] : env_.asKeyValueRange()) {
@@ -41,6 +42,8 @@ bool EnvironmentInjector::commit()
 
     const bool changed = originalEnv_ != env_;
     originalEnv_ = env_;
+    // https://learn.microsoft.com/en-us/windows/win32/procthread/environment-variables
+    PostMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) std::addressof("Environment"));
     return changed;
 }
 
