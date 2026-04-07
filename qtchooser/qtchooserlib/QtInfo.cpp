@@ -23,6 +23,18 @@ QtInfo::QtInfo()
     qRegisterMetaType<QtInfo>();
 }
 
+QString qtQuery(const std::filesystem::path &qtpathsPath, const QString &var)
+{
+    QProcess qtpaths;
+    qtpaths.start(QString::fromStdString(qtpathsPath.string()), {"--query", var});
+    qtpaths.waitForFinished();
+    if (qtpaths.exitStatus() != QProcess::NormalExit || qtpaths.exitCode() != 0) {
+        SPDLOG_ERROR("qtpaths exited with code {}", qtpaths.exitCode());
+        return {};
+    }
+    return qtpaths.readAllStandardOutput().trimmed();
+}
+
 QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
 {
     return QtConcurrent::run([path]() -> QtInfo::GetResult {
@@ -49,23 +61,28 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         }
 
         // Learn installation paths.
-        QProcess qtpaths;
-        qtpaths.start(
-            QString::fromStdString(qtpathsPath->string()), {"--query", "--query-format", "json"});
-        qtpaths.waitForFinished();
-        if (qtpaths.exitStatus() != QProcess::NormalExit || qtpaths.exitCode() != 0) {
-            SPDLOG_ERROR("qtpaths exited with code {}", qtpaths.exitCode());
-            return std::unexpected(Error::BadInstall);
+        // Version.
+        const auto versionStr = qtQuery(*qtpathsPath, "QT_VERSION");
+        if (versionStr.isEmpty()) {
+            return std::unexpected(Error::BadData);
         }
-        qtpaths.setReadChannel(QProcess::StandardOutput);
-        const auto qtquery = QJsonDocument::fromJson(qtpaths.readAllStandardOutput());
-        info.version_ = QVersionNumber::fromString(qtquery["QT_VERSION"].toString());
+        info.version_ = QVersionNumber::fromString(versionStr);
         if (info.version_.isNull()) {
             SPDLOG_ERROR("Unexpected version number");
             return std::unexpected(Error::BadData);
         }
-        info.binDir_ = qtquery["QT_INSTALL_BINS"].toString().toStdString();
-        const std::filesystem::path libDir(qtquery["QT_INSTALL_LIBS"].toString().toStdString());
+        // Bin directory.
+        const auto binDirStr = qtQuery(*qtpathsPath, "QT_INSTALL_BINS");
+        if (binDirStr.isEmpty()) {
+            return std::unexpected(Error::BadData);
+        }
+        info.binDir_ = binDirStr.toStdString();
+        // Lib directory.
+        const auto libDirStr = qtQuery(*qtpathsPath, "QT_INSTALL_LIBS");
+        if (libDirStr.isEmpty()) {
+            return std::unexpected(Error::BadData);
+        }
+        const std::filesystem::path libDir(libDirStr.toStdString());
         const auto cmakePackageFile
             = findFile(std::format("Qt{}Config.cmake", info.version_.majorVersion()), libDir);
         if (!cmakePackageFile) {
