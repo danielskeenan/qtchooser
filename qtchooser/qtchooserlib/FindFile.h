@@ -32,21 +32,30 @@ std::optional<std::filesystem::path> findFile(
  *
  * @param names A list of possible names for the program.
  * @param prefix Prefix to search inside.
+ * @param extraPaths Additional paths to search. These paths will be searched before the default paths.
  * @return Path to the program, or std::nullopt if not found.
  *
  * @see https://cmake.org/cmake/help/latest/command/find_program.html
  */
 std::optional<std::filesystem::path> findProgram(
-    const QStringList &names, const std::filesystem::path &prefix);
+    const QStringList &names,
+    const std::filesystem::path &prefix,
+    const std::vector<std::filesystem::path> &extraPaths);
+inline std::optional<std::filesystem::path> findProgram(
+    const QStringList &names, const std::filesystem::path &prefix)
+{
+    return findProgram(names, prefix, {});
+}
 
 inline std::optional<std::filesystem::path> findQtPaths(const std::filesystem::path &prefix)
 {
     return findProgram({"qtpaths", "qtpaths6", "qtpaths5"}, prefix);
 }
 
-inline std::optional<std::filesystem::path> findQtDiag(const std::filesystem::path &prefix)
+inline std::optional<std::filesystem::path> findQtDiag(
+    const std::filesystem::path &prefix, const std::filesystem::path &binDir)
 {
-    return findProgram({"qtdiag", "qtdiag6", "qtdiag5"}, prefix);
+    return findProgram({"qtdiag", "qtdiag6", "qtdiag5"}, prefix, {binDir});
 }
 
 } // namespace qtchooser

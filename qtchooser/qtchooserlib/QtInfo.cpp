@@ -41,29 +41,14 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         }
         info.binDir_ = info.prefix_ / "bin";
 
-        // Find qtdiag and qtpaths.
-        const auto qtdiagPath = findQtDiag(info.prefix_);
-        if (!qtdiagPath) {
-            SPDLOG_ERROR("Could not find qtdiag.");
-            return std::unexpected(Error::BadInstall);
-        }
+        // Find qtpaths.
         const auto qtpathsPath = findQtPaths(info.prefix_);
         if (!qtpathsPath) {
             SPDLOG_ERROR("Cound not find qtpaths.");
             return std::unexpected(Error::BadInstall);
         }
 
-        // Ask about this installation.
-        QProcess qtdiag;
-        qtdiag.start(QString::fromStdString(qtdiagPath->string()));
-        qtdiag.waitForFinished();
-        if (qtdiag.exitStatus() != QProcess::NormalExit || qtdiag.exitCode() != 0) {
-            SPDLOG_ERROR("qtdiag exited with code {}", qtdiag.exitCode());
-            return std::unexpected(Error::BadInstall);
-        }
-        qtdiag.setReadChannel(QProcess::StandardOutput);
-        info.name_ = QString::fromUtf8(qtdiag.readLine()).trimmed();
-
+        // Learn installation paths.
         QProcess qtpaths;
         qtpaths.start(
             QString::fromStdString(qtpathsPath->string()), {"--query", "--query-format", "json"});
@@ -88,6 +73,24 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
             return std::unexpected(Error::BadInstall);
         }
         info.cmakePackageDir_ = cmakePackageFile->parent_path();
+
+        // Find qtdiag.
+        const auto qtdiagPath = findQtDiag(info.prefix_, info.binDir_);
+        if (!qtdiagPath) {
+            SPDLOG_ERROR("Could not find qtdiag.");
+            return std::unexpected(Error::BadInstall);
+        }
+
+        // Get further information.
+        QProcess qtdiag;
+        qtdiag.start(QString::fromStdString(qtdiagPath->string()));
+        qtdiag.waitForFinished();
+        if (qtdiag.exitStatus() != QProcess::NormalExit || qtdiag.exitCode() != 0) {
+            SPDLOG_ERROR("qtdiag exited with code {}", qtdiag.exitCode());
+            return std::unexpected(Error::BadInstall);
+        }
+        qtdiag.setReadChannel(QProcess::StandardOutput);
+        info.name_ = QString::fromUtf8(qtdiag.readLine()).trimmed();
 
         return info;
     });
