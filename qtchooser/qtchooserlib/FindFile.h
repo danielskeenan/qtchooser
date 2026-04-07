@@ -49,13 +49,13 @@ inline std::optional<std::filesystem::path> findProgram(
 
 inline std::optional<std::filesystem::path> findQtPaths(const std::filesystem::path &prefix)
 {
-    return findProgram({"qtpaths", "qtpaths6", "qtpaths5"}, prefix);
+    return findProgram({"qtpaths6", "qtpaths", "qtpaths5"}, prefix);
 }
 
 inline std::optional<std::filesystem::path> findQtDiag(
     const std::filesystem::path &prefix, const std::filesystem::path &binDir)
 {
-    return findProgram({"qtdiag", "qtdiag6", "qtdiag5"}, prefix, {binDir});
+    return findProgram({"qtdiag6", "qtpaths", "qtdiag5"}, prefix, {binDir});
 }
 
 } // namespace qtchooser
