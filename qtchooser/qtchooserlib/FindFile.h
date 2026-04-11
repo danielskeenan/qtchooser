@@ -53,9 +53,9 @@ inline std::optional<std::filesystem::path> findQtPaths(const std::filesystem::p
 }
 
 inline std::optional<std::filesystem::path> findQtDiag(
-    const std::filesystem::path &prefix, const std::filesystem::path &binDir)
+    const std::filesystem::path &prefix, const std::vector<std::filesystem::path> &binDirs)
 {
-    return findProgram({"qtdiag6", "qtpaths", "qtdiag5"}, prefix, {binDir});
+    return findProgram({"qtdiag6", "qtpaths", "qtdiag5"}, prefix, binDirs);
 }
 
 } // namespace qtchooser

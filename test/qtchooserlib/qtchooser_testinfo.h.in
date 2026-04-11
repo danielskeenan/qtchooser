@@ -9,10 +9,13 @@
 #ifndef TEST_QTCHOOSERLIB_QTCHOOSER_TESTINFO_H
 #define TEST_QTCHOOSERLIB_QTCHOOSER_TESTINFO_H
 
+#include <filesystem>
+
 namespace qtchooser::test {
-    const auto kHostQtPrefix = "${QT_INSTALL_PREFIX}";
-    const auto kHostQtBinDir = "${QT_BINDIR}";
-    const auto kHostQtCMakeDir = "${Qt6_DIR}";
+    const std::filesystem::path kHostQtPrefix("${QT_INSTALL_PREFIX}");
+    const std::filesystem::path kHostQtBinDir("${QT_BIN_DIR}");
+    const std::filesystem::path kHostQtLibExecDir("${QT_LIBEXEC_DIR}");
+    const std::filesystem::path kHostQtCMakeDir("${Qt6_DIR}");
 }
 
 #endif //TEST_QTCHOOSERLIB_QTCHOOSER_TESTINFO_H

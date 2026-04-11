@@ -51,7 +51,6 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
             SPDLOG_ERROR("Filesystem error: {}", e.what());
             return std::unexpected(Error::FileNotFound);
         }
-        info.binDir_ = info.prefix_ / "bin";
 
         // Find qtpaths.
         const auto qtpathsPath = findQtPaths(info.prefix_);
@@ -76,7 +75,13 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         if (binDirStr.isEmpty()) {
             return std::unexpected(Error::BadData);
         }
-        info.binDir_ = binDirStr.toStdString();
+        info.binDirs_.emplace_back(binDirStr.toStdString());
+        // Libexec directory.
+        const auto libexecDirStr = qtQuery(*qtpathsPath, "QT_INSTALL_LIBEXECS");
+        if (libexecDirStr.isEmpty()) {
+            return std::unexpected(Error::BadData);
+        }
+        info.binDirs_.emplace_back(libexecDirStr.toStdString());
         // Lib directory.
         const auto libDirStr = qtQuery(*qtpathsPath, "QT_INSTALL_LIBS");
         if (libDirStr.isEmpty()) {
@@ -90,9 +95,12 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
             return std::unexpected(Error::BadInstall);
         }
         info.cmakePackageDir_ = cmakePackageFile->parent_path();
+        // Dedupe.
+        std::ranges::sort(info.binDirs_);
+        info.binDirs_.erase(std::ranges::unique(info.binDirs_).begin(), info.binDirs_.end());
 
         // Find qtdiag.
-        const auto qtdiagPath = findQtDiag(info.prefix_, info.binDir_);
+        const auto qtdiagPath = findQtDiag(info.prefix_, info.binDirs_);
         if (!qtdiagPath) {
             SPDLOG_ERROR("Could not find qtdiag.");
             return std::unexpected(Error::BadInstall);

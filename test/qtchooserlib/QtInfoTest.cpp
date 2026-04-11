@@ -26,6 +26,6 @@ TEST_CASE("QtInfo")
     CHECK(info->name().startsWith(QString("Qt %1").arg(QT_VERSION_STR)));
     CHECK(info->prefix() == prefix);
     CHECK(info->version().toString().toStdString() == version.toString().toStdString());
-    CHECK(info->binDir() == qtchooser::test::kHostQtBinDir);
+    CHECK(info->binDirs() == std::vector{qtchooser::test::kHostQtBinDir, qtchooser::test::kHostQtLibExecDir});
     CHECK(info->cmakePackageDir() == qtchooser::test::kHostQtCMakeDir);
 }

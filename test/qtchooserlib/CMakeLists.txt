@@ -7,12 +7,13 @@ if (NOT QTPATHS_PROG)
 endif ()
 execute_process(
         COMMAND "${QTPATHS_PROG}"
-        --install-prefix
-        OUTPUT_VARIABLE QT_INSTALL_PREFIX
+        --query --query-format json
+        OUTPUT_VARIABLE QT_QUERY_JSON
         COMMAND_ERROR_IS_FATAL ANY
 )
-string(STRIP "${QT_INSTALL_PREFIX}" QT_INSTALL_PREFIX)
-cmake_path(GET QTPATHS_PROG PARENT_PATH QT_BINDIR)
+string(JSON QT_INSTALL_PREFIX GET "${QT_QUERY_JSON}" "QT_INSTALL_PREFIX")
+string(JSON QT_BIN_DIR GET "${QT_QUERY_JSON}" "QT_INSTALL_BINS")
+string(JSON QT_LIBEXEC_DIR GET "${QT_QUERY_JSON}" "QT_INSTALL_LIBEXECS")
 configure_file(qtchooser_testinfo.h.in ${PROJECT_BINARY_DIR}/qtchooser/qtchooser_testinfo.h)
 
 qt_add_executable(${TARGET}

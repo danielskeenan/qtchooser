@@ -19,14 +19,18 @@ void QtChooser::choose(const QtInfo &info)
 
     CurrentChosen currentChosen;
     if (currentChosen.isValid()) {
-        env.removeFromPath(currentChosen.binDir());
+        for (const auto &binDir : currentChosen.binDirs()) {
+            env.removeFromPath(binDir);
+        }
     }
     env.setEnv("QT_ROOT_DIR", QString::fromStdString(info.prefix().string()));
     env.setEnv(
         QString("Qt%1_DIR").arg(info.version().majorVersion()),
         QString::fromStdString(info.cmakePackageDir().string()));
     env.setEnv("Qt_DIR", QString::fromStdString(info.cmakePackageDir().string()));
-    env.addToPath(info.binDir());
+    for (const auto &binDir : currentChosen.binDirs()) {
+        env.addToPath(binDir);
+    }
     if (env.commit()) {
         Q_EMIT(envVarsChanged());
     }

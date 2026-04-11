@@ -25,12 +25,12 @@ public:
     void setInfo(const QtInfo &info);
 
     [[nodiscard]] const std::filesystem::path &prefix() const { return prefix_; }
-    [[nodiscard]] const std::filesystem::path &binDir() const { return binDir_; }
+    [[nodiscard]] const std::vector<std::filesystem::path> &binDirs() const { return binDirs_; }
     [[nodiscard]] bool isValid() const;
 
 private:
     std::filesystem::path prefix_;
-    std::filesystem::path binDir_;
+    std::vector<std::filesystem::path> binDirs_;
 };
 
 } // namespace qtchooser

@@ -44,14 +44,14 @@ public:
     [[nodiscard]] QString name() const { return name_; }
     [[nodiscard]] QVersionNumber version() const { return version_; }
     [[nodiscard]] std::filesystem::path prefix() const { return prefix_; }
-    [[nodiscard]] std::filesystem::path binDir() const { return binDir_; }
+    [[nodiscard]] const std::vector<std::filesystem::path> &binDirs() const { return binDirs_; }
     [[nodiscard]] std::filesystem::path cmakePackageDir() const { return cmakePackageDir_; }
 
 private:
     QVersionNumber version_;
     QString name_;
     std::filesystem::path prefix_;
-    std::filesystem::path binDir_;
+    std::vector<std::filesystem::path> binDirs_;
     std::filesystem::path cmakePackageDir_;
 };
 
