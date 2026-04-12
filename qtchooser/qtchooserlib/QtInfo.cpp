@@ -29,7 +29,11 @@ QString qtQuery(const std::filesystem::path &qtpathsPath, const QString &var)
     qtpaths.start(QString::fromStdString(qtpathsPath.string()), {"--query", var});
     qtpaths.waitForFinished();
     if (qtpaths.exitStatus() != QProcess::NormalExit || qtpaths.exitCode() != 0) {
-        SPDLOG_ERROR("qtpaths exited with code {}", qtpaths.exitCode());
+        SPDLOG_ERROR(
+            "qtpaths exited with code {}\n{}\n{}",
+            qtpaths.exitCode(),
+            qtpaths.readAllStandardOutput().toStdString(),
+            qtpaths.readAllStandardError().toStdString());
         return {};
     }
     return qtpaths.readAllStandardOutput().trimmed();
@@ -115,7 +119,11 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         qtdiag.start(QString::fromStdString(qtdiagPath->string()));
         qtdiag.waitForFinished();
         if (qtdiag.exitStatus() != QProcess::NormalExit || qtdiag.exitCode() != 0) {
-            SPDLOG_ERROR("qtdiag exited with code {}", qtdiag.exitCode());
+            SPDLOG_ERROR(
+                "qtdiag exited with code {}:\n{}\n{}",
+                qtdiag.exitCode(),
+                qtdiag.readAllStandardOutput().toStdString(),
+                qtdiag.readAllStandardError().toStdString());
             return std::unexpected(Error::BadInstall);
         }
         qtdiag.setReadChannel(QProcess::StandardOutput);
