@@ -30,7 +30,7 @@ std::unique_ptr<EnvironmentInjector> EnvironmentInjector::get()
 void EnvironmentInjector::addToPath(const std::filesystem::path &path)
 {
     auto userPath = getUserPath();
-    if (!std::ranges::contains(userPath, path)) {
+    if (std::ranges::find(userPath, path) == userPath.end()) {
         userPath.push_back(path);
         setUserPath(userPath);
     }
