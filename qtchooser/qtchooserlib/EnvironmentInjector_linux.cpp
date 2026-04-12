@@ -128,7 +128,7 @@ bool EnvironmentInjector::commit()
     return changed;
 }
 
-QStringList EnvironmentInjector::getUserPath()
+std::vector<std::filesystem::path> EnvironmentInjector::getUserPath()
 {
     return env_[kEnvPath].split(kEnvPathSeparator, Qt::SkipEmptyParts);
 }

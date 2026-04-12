@@ -15,23 +15,22 @@ namespace qtchooser {
 
 void QtChooser::choose(const QtInfo &info)
 {
-    EnvironmentInjector env;
+    auto env = EnvironmentInjector::get();
 
     CurrentChosen currentChosen;
     if (currentChosen.isValid()) {
         for (const auto &binDir : currentChosen.binDirs()) {
-            env.removeFromPath(binDir);
+            env->removeFromPath(binDir);
         }
     }
-    env.setEnv("QT_ROOT_DIR", QString::fromStdString(info.prefix().string()));
-    env.setEnv(
-        QString("Qt%1_DIR").arg(info.version().majorVersion()),
-        QString::fromStdString(info.cmakePackageDir().string()));
-    env.setEnv("Qt_DIR", QString::fromStdString(info.cmakePackageDir().string()));
-    for (const auto &binDir : currentChosen.binDirs()) {
-        env.addToPath(binDir);
+    env->setEnv("QT_ROOT_DIR", info.prefix().string());
+    env->setEnv(
+        std::format("Qt{}_DIR", info.version().majorVersion()), info.cmakePackageDir().string());
+    env->setEnv("Qt_DIR", info.cmakePackageDir().string());
+    for (const auto &binDir : info.binDirs()) {
+        env->addToPath(binDir);
     }
-    if (env.commit()) {
+    if (env->commit()) {
         Q_EMIT(envVarsChanged());
     }
     currentChosen.setInfo(info);

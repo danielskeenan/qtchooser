@@ -43,6 +43,7 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
 
         try {
             info.prefix_ = std::filesystem::absolute(path);
+            info.prefix_.make_preferred();
             if (!std::filesystem::is_directory(info.prefix_)) {
                 SPDLOG_DEBUG("Not a directory.");
                 return std::unexpected(Error::FileNotFound);
@@ -75,13 +76,15 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
         if (binDirStr.isEmpty()) {
             return std::unexpected(Error::BadData);
         }
-        info.binDirs_.emplace_back(binDirStr.toStdString());
+        auto binDirPath = info.binDirs_.emplace_back(binDirStr.toStdString());
+        binDirPath.make_preferred();
         // Libexec directory.
         const auto libexecDirStr = qtQuery(*qtpathsPath, "QT_INSTALL_LIBEXECS");
         if (libexecDirStr.isEmpty()) {
             return std::unexpected(Error::BadData);
         }
-        info.binDirs_.emplace_back(libexecDirStr.toStdString());
+        auto libExecDirPath = info.binDirs_.emplace_back(libexecDirStr.toStdString());
+        libExecDirPath.make_preferred();
         // Lib directory.
         const auto libDirStr = qtQuery(*qtpathsPath, "QT_INSTALL_LIBS");
         if (libDirStr.isEmpty()) {
@@ -95,6 +98,7 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
             return std::unexpected(Error::BadInstall);
         }
         info.cmakePackageDir_ = cmakePackageFile->parent_path();
+        info.cmakePackageDir_.make_preferred();
         // Dedupe.
         std::ranges::sort(info.binDirs_);
         info.binDirs_.erase(std::ranges::unique(info.binDirs_).begin(), info.binDirs_.end());

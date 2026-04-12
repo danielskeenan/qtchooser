@@ -14,5 +14,9 @@
   }, {
     "name" : "tabulate",
     "version>=" : "1.5"
+  }, {
+    "name" : "winreg",
+    "version>=" : "6.3.2",
+    "platform" : "windows"
   } ]
 }

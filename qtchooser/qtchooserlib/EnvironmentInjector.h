@@ -10,8 +10,7 @@
 #define QTCHOOSER_ENVIRONMENTINJECTOR_H
 
 #include <filesystem>
-#include <QHash>
-#include <QStringList>
+#include <vector>
 
 namespace qtchooser {
 
@@ -21,9 +20,10 @@ namespace qtchooser {
 class EnvironmentInjector
 {
 public:
-    using Environment = QHash<QString, QString>;
+    explicit EnvironmentInjector() = default;
+    virtual ~EnvironmentInjector() = default;
 
-    explicit EnvironmentInjector();
+    static std::unique_ptr<EnvironmentInjector> get();
 
     /**
      * Set the persistent environment variable @p var to @p val.
@@ -32,7 +32,7 @@ public:
      * @param val
      * @return `TRUE` if the value has changed from its previous value.
      */
-    void setEnv(const QString &var, const QString &val);
+    virtual void setEnv(const std::string &var, const std::string &val) = 0;
 
     /**
      * Add @p path to the system PATH variable.
@@ -51,14 +51,19 @@ public:
     /**
      * Save the changes to the system.
      */
-    bool commit();
+    virtual bool commit() = 0;
 
-private:
-    Environment originalEnv_;
-    Environment env_;
+protected:
+    /**
+     * Get a list of paths the system will search for executables.
+     */
+    [[nodiscard]] virtual std::vector<std::filesystem::path> getUserPath() = 0;
 
-    QStringList getUserPath();
-    void setUserPath(const QStringList &path);
+    /**
+     * Set the list of paths the system will search for executables.
+     * @param path
+     */
+    virtual void setUserPath(const std::vector<std::filesystem::path> &path) = 0;
 };
 
 } // namespace qtchooser

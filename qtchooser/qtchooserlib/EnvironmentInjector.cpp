@@ -7,26 +7,36 @@
  */
 
 #include "EnvironmentInjector.h"
+#include <QtGlobal>
+#ifdef Q_OS_WIN
+#include "EnvironmentInjectorWin.h"
+#endif
 
 namespace qtchooser {
 
-void EnvironmentInjector::setEnv(const QString &var, const QString &val)
+std::unique_ptr<EnvironmentInjector> EnvironmentInjector::get()
 {
-    env_[var] = val;
+#ifdef Q_OS_WIN
+    return std::make_unique<EnvironmentInjectorWin>();
+#else
+#error "Unsupported platform"
+#endif
 }
 
 void EnvironmentInjector::addToPath(const std::filesystem::path &path)
 {
     auto userPath = getUserPath();
-    userPath.push_back(QString::fromStdString(path.string()));
-    setUserPath(userPath);
+    if (std::ranges::find(userPath, path) == userPath.end()) {
+        userPath.push_back(path);
+        setUserPath(userPath);
+    }
 }
 
 void EnvironmentInjector::removeFromPath(const std::filesystem::path &path)
 {
     auto userPath = getUserPath();
-    userPath.removeAll(QString::fromStdString(path.string()));
+    std::erase(userPath, path);
     setUserPath(userPath);
 }
 
-}
+} // namespace qtchooser

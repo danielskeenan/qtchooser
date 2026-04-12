@@ -16,8 +16,11 @@ qt_add_library(${TARGET} STATIC
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    find_path(WINREG_INCLUDE_DIRS "winreg/WinReg.hpp")
+    target_include_directories(${TARGET} PRIVATE ${WINREG_INCLUDE_DIRS})
     target_sources(${TARGET} PRIVATE
-            EnvironmentInjector_win.cpp
+            EnvironmentInjectorWin.cpp
+            EnvironmentInjectorWin.h
             QtFinder_win.cpp
     )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -27,7 +30,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     )
 else ()
     target_sources(${TARGET} PRIVATE
-            EnvironmentInjector_none.cpp
             QtFinder_none.cpp
     )
 endif ()
