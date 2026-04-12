@@ -26,6 +26,10 @@ TEST_CASE("QtInfo")
     CHECK(info->name().startsWith(QString("Qt %1").arg(QT_VERSION_STR)));
     CHECK(info->prefix() == prefix);
     CHECK(info->version().toString().toStdString() == version.toString().toStdString());
-    CHECK(info->binDirs() == std::vector{qtchooser::test::kHostQtBinDir, qtchooser::test::kHostQtLibExecDir});
+    std::vector expectedBinDirs{qtchooser::test::kHostQtBinDir, qtchooser::test::kHostQtLibExecDir};
+    // Dedupe.
+    std::ranges::sort(expectedBinDirs);
+    expectedBinDirs.erase(std::ranges::unique(expectedBinDirs).begin(), expectedBinDirs.end());
+    CHECK(info->binDirs() == expectedBinDirs);
     CHECK(info->cmakePackageDir() == qtchooser::test::kHostQtCMakeDir);
 }
