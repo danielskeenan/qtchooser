@@ -116,7 +116,7 @@ QFuture<QtInfo::GetResult> QtInfo::get(const std::filesystem::path &path)
 
         // Get further information.
         QProcess qtdiag;
-        qtdiag.start(QString::fromStdString(qtdiagPath->string()));
+        qtdiag.start(QString::fromStdString(qtdiagPath->string()), {"--platform", "minimal"});
         qtdiag.waitForFinished();
         if (qtdiag.exitStatus() != QProcess::NormalExit || qtdiag.exitCode() != 0) {
             SPDLOG_ERROR(
