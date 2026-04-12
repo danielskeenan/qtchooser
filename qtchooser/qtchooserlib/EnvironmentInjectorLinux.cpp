@@ -7,6 +7,7 @@
  */
 
 #include "EnvironmentInjectorLinux.h"
+#include <ranges>
 #include <spdlog/spdlog.h>
 #include <QDir>
 #include <QFile>
