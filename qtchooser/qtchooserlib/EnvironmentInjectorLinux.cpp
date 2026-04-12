@@ -9,6 +9,7 @@
 #include "EnvironmentInjectorLinux.h"
 #include <ranges>
 #include <spdlog/spdlog.h>
+#include <sstream>
 #include <QDir>
 #include <QFile>
 #include <QRegularExpression>
@@ -143,11 +144,13 @@ std::vector<std::filesystem::path> EnvironmentInjectorLinux::getUserPath()
 
 void EnvironmentInjectorLinux::setUserPath(const std::vector<std::filesystem::path> &userPath)
 {
-    std::vector<std::string> pathStrs;
-    for (const auto &path : userPath) {
-        pathStrs.emplace_back(path.string());
+    std::stringstream ss;
+    for (auto it = userPath.cbegin(); it != userPath.cend(); ++it) {
+        ss << it->string();
+        if (it + 1 != userPath.cend()) {
+            ss << kEnvPathSeparator;
+        }
     }
-    env_[kEnvPath]
-        = std::string(std::from_range, std::views::join_with(pathStrs, kEnvPathSeparator));
+    env_[kEnvPath] = ss.str();
 }
 } // namespace qtchooser
