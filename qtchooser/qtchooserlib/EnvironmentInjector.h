@@ -61,9 +61,9 @@ protected:
 
     /**
      * Set the list of paths the system will search for executables.
-     * @param path
+     * @param userPath
      */
-    virtual void setUserPath(const std::vector<std::filesystem::path> &path) = 0;
+    virtual void setUserPath(const std::vector<std::filesystem::path> &userPath) = 0;
 };
 
 } // namespace qtchooser

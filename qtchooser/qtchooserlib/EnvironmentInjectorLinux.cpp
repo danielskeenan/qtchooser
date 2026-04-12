@@ -1,21 +1,19 @@
 /**
- * @file EnvironmentInjector_linux.cpp
+ * @file EnvironmentInjectorLinux.cpp
  *
  * @author Dan Keenan
- * @date 4/6/26
+ * @date 4/12/26
  * @copyright GPL-3.0
  */
 
-#include "EnvironmentInjector.h"
+#include "EnvironmentInjectorLinux.h"
 #include <spdlog/spdlog.h>
 #include <QDir>
 #include <QFile>
-#include <QProcessEnvironment>
 #include <QRegularExpression>
 #include <QSaveFile>
 
 namespace qtchooser {
-
 constexpr auto kProfileMarker = "# Added by qtchooser";
 constexpr auto kEnvPath = "PATH";
 constexpr auto kEnvPathRef = ":${PATH}";
@@ -27,16 +25,15 @@ QFile getBashProfile()
     return QFile(QDir::home().absoluteFilePath(".bash_profile"));
 }
 
-EnvironmentInjector::Environment getUserEnvironment()
+EnvironmentInjectorLinux::EnvironmentInjectorLinux() : EnvironmentInjector()
 {
     auto bashProfileFile = getBashProfile();
     if (!bashProfileFile.open(QFile::ReadOnly)) {
         SPDLOG_WARN("Could not open .bash_profile");
-        return {};
+        return;
     }
 
     QTextStream bashProfile(&bashProfileFile);
-    EnvironmentInjector::Environment env;
     QString line;
 
     // Seek to our section of the file.
@@ -62,16 +59,17 @@ EnvironmentInjector::Environment getUserEnvironment()
             // Remove reference to existing PATH var.
             val.replace(kEnvPathRef, "");
         }
-        env.insert(var, val);
+        env_[var.toStdString()] = val.toStdString();
     }
-
-    return env;
+    originalEnv_ = env_;
 }
 
-EnvironmentInjector::EnvironmentInjector() : originalEnv_(getUserEnvironment()), env_(originalEnv_)
-{}
+void EnvironmentInjectorLinux::setEnv(const std::string &var, const std::string &val)
+{
+    env_[var] = val;
+}
 
-bool EnvironmentInjector::commit()
+bool EnvironmentInjectorLinux::commit()
 {
     auto bashProfileFile = getBashProfile();
     if (!bashProfileFile.open(QFile::ReadOnly)) {
@@ -97,13 +95,14 @@ bool EnvironmentInjector::commit()
 
     // Write our exports.
     newBashProfile << kProfileMarker << '\n';
-    for (const auto &[var, val] : env_.asKeyValueRange()) {
+    for (const auto &[var, val] : env_) {
         auto exportVal = val;
         if (var == kEnvPath) {
             // Put our PATH before others.
             exportVal.append(kEnvPathRef);
         }
-        newBashProfile << "export " << var << "=\"" << exportVal << "\"\n";
+        newBashProfile << "export " << QString::fromStdString(var) << "=\""
+                       << QString::fromStdString(exportVal) << "\"\n";
     }
 
     // Seek past original exports.
@@ -128,14 +127,26 @@ bool EnvironmentInjector::commit()
     return changed;
 }
 
-std::vector<std::filesystem::path> EnvironmentInjector::getUserPath()
+std::vector<std::filesystem::path> EnvironmentInjectorLinux::getUserPath()
 {
-    return env_[kEnvPath].split(kEnvPathSeparator, Qt::SkipEmptyParts);
+    std::vector<std::filesystem::path> userPath;
+
+    if (env_.contains(kEnvPath)) {
+        for (const auto &part : std::views::split(env_[kEnvPath], kEnvPathSeparator)) {
+            userPath.emplace_back(std::string_view(part));
+        }
+    }
+
+    return userPath;
 }
 
-void EnvironmentInjector::setUserPath(const QStringList &path)
+void EnvironmentInjectorLinux::setUserPath(const std::vector<std::filesystem::path> &userPath)
 {
-    setEnv(kEnvPath, path.join(kEnvPathSeparator));
+    std::vector<std::string> pathStrs;
+    for (const auto &path : userPath) {
+        pathStrs.emplace_back(path.string());
+    }
+    env_[kEnvPath]
+        = std::string(std::from_range, std::views::join_with(pathStrs, kEnvPathSeparator));
 }
-
 } // namespace qtchooser

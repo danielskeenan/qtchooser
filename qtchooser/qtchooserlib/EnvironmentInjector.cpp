@@ -10,6 +10,8 @@
 #include <QtGlobal>
 #ifdef Q_OS_WIN
 #include "EnvironmentInjectorWin.h"
+#elifdef Q_OS_LINUX
+#include "EnvironmentInjectorLinux.h"
 #endif
 
 namespace qtchooser {
@@ -18,6 +20,8 @@ std::unique_ptr<EnvironmentInjector> EnvironmentInjector::get()
 {
 #ifdef Q_OS_WIN
     return std::make_unique<EnvironmentInjectorWin>();
+#elifdef Q_OS_LINUX
+    return std::make_unique<EnvironmentInjectorLinux>();
 #else
 #error "Unsupported platform"
 #endif
@@ -26,7 +30,7 @@ std::unique_ptr<EnvironmentInjector> EnvironmentInjector::get()
 void EnvironmentInjector::addToPath(const std::filesystem::path &path)
 {
     auto userPath = getUserPath();
-    if (std::ranges::find(userPath, path) == userPath.end()) {
+    if (!std::ranges::contains(userPath, path)) {
         userPath.push_back(path);
         setUserPath(userPath);
     }

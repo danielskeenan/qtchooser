@@ -25,7 +25,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(${TARGET} PRIVATE
-            EnvironmentInjector_linux.cpp
+            EnvironmentInjectorLinux.cpp
+            EnvironmentInjectorLinux.h
             QtFinder_linux.cpp
     )
 else ()
