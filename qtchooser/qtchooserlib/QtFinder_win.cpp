@@ -7,14 +7,12 @@
  */
 
 #include "QtFinder.h"
-#include <QDir>
 
 namespace qtchooser {
 std::vector<std::filesystem::path> QtFinder::defaultSearchPaths()
 {
     return {
         // Default installation path from official Qt installer.
-        QDir::root().filesystemPath() / "Qt"
-    };
+        std::filesystem::path(std::getenv("WINDIR")).root_path() / "Qt"};
 }
-}
+} // namespace qtchooser

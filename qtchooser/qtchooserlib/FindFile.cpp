@@ -37,7 +37,13 @@ std::optional<std::filesystem::path> findProgram(
     std::unordered_map<boost::process::environment::key, boost::process::environment::value> env{
         {"PATH", pathVar}};
 
-    for (const auto &name : names) {
+    auto findNames = names;
+#ifdef OS_WINDOWS
+    for (auto &name : findNames) {
+        name.append(".exe");
+    }
+#endif
+    for (const auto &name : findNames) {
         auto found = boost::process::environment::find_executable(name, env);
         if (!found.empty()) {
             return found;

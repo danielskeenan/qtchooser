@@ -33,12 +33,12 @@ std::string qtQuery(const std::filesystem::path &qtpathsPath, const std::string 
     boost::system::error_code qtpathsErrEc;
     asio::read(qtpathsOutP, asio::dynamic_buffer(qtpathsOut), qtpathsOutEc);
     if (qtpathsOutEc != asio::error::eof) {
-        SPDLOG_ERROR("Error reading qtpaths stdout");
+        SPDLOG_ERROR("Error reading qtpaths stdout: {}", qtpathsOutEc.message());
         return {};
     }
     asio::read(qtpathsErrP, asio::dynamic_buffer(qtpathsErr), qtpathsErrEc);
     if (qtpathsErrEc != asio::error::eof) {
-        SPDLOG_ERROR("Error reading qtpaths stderr");
+        SPDLOG_ERROR("Error reading qtpaths stderr: {}", qtpathsErrEc.message());
         return {};
     }
 
