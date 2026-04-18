@@ -30,8 +30,13 @@ set(CMAKE_CXX_STANDARD 23)
 
 if (BUILD_EXEC)
     add_compile_definitions(QT_NO_KEYWORDS)
+
+    # Platform macros
     string(TOUPPER "${CMAKE_SYSTEM_NAME}" OS_DEF)
     add_compile_definitions("OS_${OS_DEF}")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        add_compile_definitions("WINVER=0x0A00" "_WIN32_WINNT=0x0A00")
+    endif ()
 
     include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
