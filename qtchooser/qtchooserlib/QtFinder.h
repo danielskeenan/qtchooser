@@ -11,7 +11,6 @@
 
 #include "QtInfo.h"
 #include <filesystem>
-#include <QThread>
 
 namespace qtchooser {
 
@@ -20,11 +19,10 @@ namespace qtchooser {
  *
  * Platform-specific search paths are used. Additional paths can be added with addSearchPaths().
  */
-class QtFinder : public QThread
+class QtFinder
 {
-    Q_OBJECT
 public:
-    explicit QtFinder(QObject *parent = nullptr);
+    explicit QtFinder();
 
     /**
      * Add a search path in addition to the platform-specific paths.
@@ -35,11 +33,11 @@ public:
      */
     void addSearchPath(const std::filesystem::path &path);
 
-Q_SIGNALS:
-    void found(QtInfo info);
-
-protected:
-    void run() override;
+    /**
+     * Find Qt installations.
+     * @return
+     */
+    std::vector<QtInfo> find();
 
 private:
     std::vector<std::filesystem::path> searchPaths_;
@@ -53,7 +51,7 @@ private:
      * @return `FALSE` if this path definitely does not contain a Qt installation, `TRUE` if further
      * checks are necessary.
      */
-    bool isPossibleQtDir(const std::filesystem::path &path);
+    static bool isPossibleQtDir(const std::filesystem::path &path);
 };
 
 } // namespace qtchooser

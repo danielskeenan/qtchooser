@@ -8,24 +8,19 @@
 
 #include "qtchooser/qtchooserlib/QtFinder.h"
 #include <catch2/catch_test_macros.hpp>
-#include <QSignalSpy>
+#include <ranges>
 #include <qtchooser/qtchooser_testinfo.h>
 
 TEST_CASE("QtFinder")
 {
     qtchooser::QtFinder finder;
     finder.addSearchPath(qtchooser::test::kHostQtPrefix);
-    QSignalSpy finderSpy(&finder, &qtchooser::QtFinder::found);
-    finder.start();
+    const auto found = finder.find();
 
-    // This must finish within 10 seconds.
-    REQUIRE(finder.wait(10000));
-    REQUIRE(finderSpy.size() > 0);
+    REQUIRE(found.size() > 0);
 
     // Check for the Qt this program was compiled with.
-    const auto thisQtInfo = qtchooser::QtInfo::get(qtchooser::test::kHostQtPrefix).result();
+    const auto thisQtInfo = qtchooser::QtInfo::get(qtchooser::test::kHostQtPrefix);
     REQUIRE(thisQtInfo.has_value());
-    CHECK(std::ranges::any_of(finderSpy, [&thisQtInfo](const QVariantList &args) {
-        return args.front().value<qtchooser::QtInfo>() == thisQtInfo;
-    }));
+    CHECK(std::ranges::find(found, *thisQtInfo) != found.cend());
 }

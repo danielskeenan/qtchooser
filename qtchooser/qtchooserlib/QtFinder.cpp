@@ -7,20 +7,20 @@
  */
 
 #include "QtFinder.h"
+#include "FindFile.h"
+#include <algorithm>
 #include <regex>
 #include <spdlog/spdlog.h>
-#include <QDir>
-#include <QStandardPaths>
-
-#include "FindFile.h"
 #include <queue>
 
 namespace qtchooser {
 
-QtFinder::QtFinder(QObject *parent) : QThread(parent), searchPaths_(defaultSearchPaths()) {}
+QtFinder::QtFinder() : searchPaths_(defaultSearchPaths()) {}
 
-void QtFinder::run()
+std::vector<QtInfo> QtFinder::find()
 {
+    std::vector<QtInfo> found;
+
     const std::regex reVersionNumber(R"(^[\d.]+$)");
     std::queue searchPaths(searchPaths_.cbegin(), searchPaths_.cend());
 
@@ -31,11 +31,9 @@ void QtFinder::run()
         // POSIX-style directory.
         if (isPossibleQtDir(searchPath)) {
             auto info = QtInfo::get(searchPath);
-            info.waitForFinished();
-            const auto result = info.takeResult();
-            if (result.has_value()) {
-                SPDLOG_DEBUG("Found {}", result->name().toStdString());
-                Q_EMIT(found(*result));
+            if (info.has_value()) {
+                SPDLOG_DEBUG("Found v{} at {}", info->version().string(), info->prefix().string());
+                found.emplace_back(*info);
             }
         }
 
@@ -53,6 +51,9 @@ void QtFinder::run()
             }
         }
     }
+
+    std::ranges::sort(found);
+    return found;
 }
 
 void QtFinder::addSearchPath(const std::filesystem::path &path)

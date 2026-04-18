@@ -7,7 +7,7 @@
  */
 
 #include "QtFinder.h"
-#include <QDir>
+#include <boost/process/environment.hpp>
 
 namespace qtchooser {
 std::vector<std::filesystem::path> QtFinder::defaultSearchPaths()
@@ -16,7 +16,7 @@ std::vector<std::filesystem::path> QtFinder::defaultSearchPaths()
         std::filesystem::path("/usr"),
         std::filesystem::path("/usr/local"),
         // Default installation path from official Qt installer.
-        QDir::home().filesystemPath() / "Qt",
+        boost::process::environment::home() / "Qt",
     };
 }
 } // namespace qtchooser

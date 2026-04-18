@@ -9,8 +9,8 @@ add_library(${TARGET} STATIC
         FindFile.h
 #        QtChooser.cpp
 #        QtChooser.h
-#        QtFinder.cpp
-#        QtFinder.h
+        QtFinder.cpp
+        QtFinder.h
         QtInfo.cpp
         QtInfo.h
         VersionNumber.cpp
@@ -23,18 +23,16 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(${TARGET} PRIVATE
 #            EnvironmentInjectorWin.cpp
 #            EnvironmentInjectorWin.h
-#            QtFinder_win.cpp
+            QtFinder_win.cpp
     )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(${TARGET} PRIVATE
 #            EnvironmentInjectorLinux.cpp
 #            EnvironmentInjectorLinux.h
-#            QtFinder_linux.cpp
+            QtFinder_linux.cpp
     )
 else ()
-    target_sources(${TARGET} PRIVATE
-#            QtFinder_none.cpp
-    )
+    message(FATAL_ERROR "Unsupported platform")
 endif ()
 
 find_package(Boost CONFIG REQUIRED COMPONENTS algorithm process)
