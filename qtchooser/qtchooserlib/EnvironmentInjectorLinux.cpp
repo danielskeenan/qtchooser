@@ -23,7 +23,7 @@ constexpr auto kProfileMarker = "# Added by qtchooser";
 constexpr auto kEnvPathSeparator = ':';
 constexpr auto kEnvPath = "PATH";
 static const std::regex kReExport(R"/(^\s*export (\w+)="?(.+?)"?$)/");
-static const std::regex kRePathRef(R"/(:\${PATH}|\${PATH}:)/");
+static const std::regex kRePathRef(R"/(:\$\{PATH\}|\$\{PATH\}:)/");
 
 std::filesystem::path bashProfilePath()
 {

@@ -9,7 +9,6 @@
 #ifndef QTCHOOSER_CLI_LISTRUNNER_H
 #define QTCHOOSER_CLI_LISTRUNNER_H
 
-#include <QPointer>
 #include <qtchooser/qtchooserlib/QtFinder.h>
 
 namespace qtchooser {
@@ -22,21 +21,15 @@ struct ListCliOptions
 /**
  * List Qt installations.
  */
-class ListRunner : public QObject
+class ListRunner
 {
-    Q_OBJECT
 public:
-    explicit ListRunner(const ListCliOptions &cliOptions, QObject *parent = nullptr);
+    explicit ListRunner(const ListCliOptions &cliOptions);
 
-    void start();
+    void run();
 
 private:
-    QPointer<QtFinder> finder_;
-    std::vector<QtInfo> found_;
-
-private Q_SLOTS:
-    void found(const QtInfo &info);
-    void finished();
+    QtFinder finder_;
 };
 
 } // namespace qtchooser

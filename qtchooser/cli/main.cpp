@@ -12,16 +12,13 @@
 #include <argparse/argparse.hpp>
 #include <filesystem>
 #include <iostream>
-#include <QCoreApplication>
-#include <QStandardPaths>
-#include <QTimer>
 
 using CliOptions = std::variant<qtchooser::ListCliOptions, qtchooser::ChooseCliOptions>;
 
 CliOptions parseCommandLine(int argc, char *argv[])
 {
     argparse::ArgumentParser
-        parser(qApp->applicationName().toStdString(), qApp->applicationVersion().toStdString());
+        parser(qtchooser::config::kProjectDisplayName, qtchooser::config::kProjectVersion);
 
     // List
     argparse::ArgumentParser cmdList("list");
@@ -73,10 +70,8 @@ CliOptions parseCommandLine(int argc, char *argv[])
 template<class Runner_T, class CliOptions_T>
 void run(const CliOptions_T &cliOptions)
 {
-    QTimer::singleShot(0, [&cliOptions]() {
-        auto runner = new Runner_T(cliOptions);
-        runner->start();
-    });
+    auto runner = new Runner_T(cliOptions);
+    runner->run();
 }
 
 struct Runner
@@ -94,14 +89,8 @@ struct Runner
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
-    app.setOrganizationName(qtchooser::config::kProjectOrganizationName);
-    app.setOrganizationDomain(qtchooser::config::kProjectOrganizationDomain);
-    app.setApplicationName(qtchooser::config::kProjectName);
-    app.setApplicationVersion(qtchooser::config::kProjectVersion);
-
     const auto cliOptions = parseCommandLine(argc, argv);
     std::visit(Runner(), cliOptions);
 
-    return app.exec();
+    return 0;
 }

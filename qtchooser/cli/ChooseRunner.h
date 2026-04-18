@@ -9,7 +9,6 @@
 #ifndef QTCHOOSER_CLI_CHOOSERUNNER_H
 #define QTCHOOSER_CLI_CHOOSERUNNER_H
 
-#include <QPointer>
 #include <qtchooser/qtchooserlib/QtChooser.h>
 
 namespace qtchooser {
@@ -22,22 +21,16 @@ struct ChooseCliOptions
 /**
  * Choose a specific Qt installation.
  */
-class ChooseRunner : public QObject
+class ChooseRunner
 {
-    Q_OBJECT
 public:
-    explicit ChooseRunner(const ChooseCliOptions& cliOptions, QObject *parent = nullptr);
+    explicit ChooseRunner(const ChooseCliOptions &cliOptions);
 
-    void start();
+    void run();
 
 private:
     std::filesystem::path prefix_;
-    QPointer<QtChooser> chooser_;
-    QPointer<QFutureWatcher<QtInfo::GetResult>> watcher_;
-
-private Q_SLOTS:
-    void envVarsChanged();
-    void infoReady();
+    QtChooser chooser_;
 };
 
 } // namespace qtchooser
