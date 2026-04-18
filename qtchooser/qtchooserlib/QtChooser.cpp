@@ -9,6 +9,7 @@
 #include "QtChooser.h"
 #include "CurrentChosen.h"
 #include "EnvironmentInjector.h"
+#include <format>
 
 namespace qtchooser {
 

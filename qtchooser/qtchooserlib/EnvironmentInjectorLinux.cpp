@@ -10,6 +10,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/process/environment.hpp>
+#include <format>
 #include <fstream>
 #include <ranges>
 #include <regex>

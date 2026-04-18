@@ -11,6 +11,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/process.hpp>
+#include <format>
 #include <spdlog/spdlog.h>
 
 namespace qtchooser {
