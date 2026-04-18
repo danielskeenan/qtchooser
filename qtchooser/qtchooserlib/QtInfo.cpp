@@ -27,26 +27,26 @@ std::string qtQuery(const std::filesystem::path &qtpathsPath, const std::string 
 
     proc::process qtpaths{
         ctx, qtpathsPath, {"--query", var}, proc::process_stdio{nullptr, qtpathsOutP, qtpathsErrP}};
+    qtpaths.wait();
 
     std::string qtpathsOut;
-    std::string qtpathsErr;
     boost::system::error_code qtpathsOutEc;
-    boost::system::error_code qtpathsErrEc;
     asio::read(qtpathsOutP, asio::dynamic_buffer(qtpathsOut), qtpathsOutEc);
-    if (qtpathsOutEc != asio::error::eof) {
+    if (qtpathsOut.empty() && qtpathsOutEc != asio::error::eof) {
         SPDLOG_ERROR("Error reading qtpaths stdout: {}", qtpathsOutEc.message());
         return {};
     }
-    asio::read(qtpathsErrP, asio::dynamic_buffer(qtpathsErr), qtpathsErrEc);
-    if (qtpathsErrEc != asio::error::eof) {
-        SPDLOG_ERROR("Error reading qtpaths stderr: {}", qtpathsErrEc.message());
-        return {};
-    }
 
-    qtpaths.wait();
     boost::algorithm::trim(qtpathsOut);
-    boost::algorithm::trim(qtpathsErr);
     if (qtpaths.exit_code() != 0) {
+        std::string qtpathsErr;
+        boost::system::error_code qtpathsErrEc;
+        asio::read(qtpathsErrP, asio::dynamic_buffer(qtpathsErr), qtpathsErrEc);
+        if (qtpathsOut.empty() && qtpathsErr.empty() && qtpathsErrEc != asio::error::eof) {
+            SPDLOG_ERROR("Error reading qtpaths stderr: {}", qtpathsErrEc.message());
+            return {};
+        }
+        boost::algorithm::trim(qtpathsErr);
         SPDLOG_ERROR(
             "qtpaths exited with code {}\n{}\n{}", qtpaths.exit_code(), qtpathsOut, qtpathsErr);
         return {};
