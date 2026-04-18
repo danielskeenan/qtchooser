@@ -18,3 +18,6 @@ target_link_libraries(${TARGET} PRIVATE
 )
 
 install(TARGETS ${TARGET} RUNTIME)
+install(FILES "$<TARGET_RUNTIME_DLLS:${TARGET}>"
+        TYPE BIN
+)
