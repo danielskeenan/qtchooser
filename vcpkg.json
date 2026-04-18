@@ -24,5 +24,8 @@
   }, {
     "name" : "boost-algorithm",
     "version>=" : "1.90.0#1"
+  }, {
+    "name" : "nlohmann-json",
+    "version>=" : "3.12.0#2"
   } ]
 }

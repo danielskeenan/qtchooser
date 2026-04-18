@@ -7,30 +7,77 @@
  */
 
 #include "CurrentChosen.h"
+#include <boost/process/environment.hpp>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 namespace qtchooser {
 
+constexpr auto kSettingPrefix = "currentPrefix";
+constexpr auto kSettingBinDirs = "currentBinDirs";
+
+std::filesystem::path currentChosenPath()
+{
+    return boost::process::environment::home() / ".qtchooser";
+}
+
 CurrentChosen::CurrentChosen()
 {
-    QSettings settings;
-    prefix_ = settings.value(kSettingCurrentPrefix).toString().toStdString();
-    for (const auto &binDir : settings.value(kSettingCurrentBinDir).toStringList()) {
-        binDirs_.emplace_back(binDir.toStdString());
+    using nlohmann::json;
+
+    std::ifstream settingsFile(currentChosenPath());
+    if (!settingsFile.is_open()) {
+        // No settings stored.
+        return;
+    }
+
+    try {
+        const auto settings = json::parse(settingsFile);
+
+        if (settings.contains(kSettingPrefix) && settings[kSettingPrefix].is_string()) {
+            prefix_ = settings[kSettingPrefix].get<std::string>();
+        }
+
+        if (settings.contains(kSettingBinDirs) && settings[kSettingBinDirs].is_array()) {
+            for (const auto &binDir : settings[kSettingBinDirs]) {
+                if (binDir.is_string()) {
+                    binDirs_.emplace_back(binDir.get<std::string>());
+                }
+            }
+        }
+    } catch (const json::parse_error &e) {
+        SPDLOG_ERROR("Error parsing settings file: {}", e.what());
+        return;
+    } catch (const json::exception &e) {
+        SPDLOG_ERROR("Error loading settings file: {}", e.what());
+        return;
     }
 }
 
 void CurrentChosen::setInfo(const QtInfo &info)
 {
+    using nlohmann::json;
+
     prefix_ = info.prefix();
     binDirs_ = info.binDirs();
 
-    QSettings settings;
-    settings.setValue(kSettingCurrentPrefix, QString::fromStdString(prefix_.string()));
-    QStringList binDirList;
+    json settings;
+
+    settings[kSettingPrefix] = prefix_.string();
+
+    std::vector<std::string> binDirs;
     for (const auto &binDir : binDirs_) {
-        binDirList.emplace_back(QString::fromStdString(binDir.string()));
+        binDirs.emplace_back(binDir.string());
     }
-    settings.setValue(kSettingCurrentBinDir, binDirList);
+    settings[kSettingBinDirs] = binDirs;
+
+    std::ofstream settingsFile(currentChosenPath());
+    if (!settingsFile.is_open()) {
+        SPDLOG_ERROR("Could not save current chosen to disk");
+        return;
+    }
+    settingsFile << settings;
 }
 
 bool CurrentChosen::isValid() const

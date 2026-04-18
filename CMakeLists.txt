@@ -30,6 +30,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 if (BUILD_EXEC)
     add_compile_definitions(QT_NO_KEYWORDS)
+    string(TOUPPER "${CMAKE_SYSTEM_NAME}" OS_DEF)
+    add_compile_definitions("OS_${OS_DEF}")
 
     include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 

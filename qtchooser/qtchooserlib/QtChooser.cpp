@@ -9,11 +9,10 @@
 #include "QtChooser.h"
 #include "CurrentChosen.h"
 #include "EnvironmentInjector.h"
-#include <QStandardPaths>
 
 namespace qtchooser {
 
-void QtChooser::choose(const QtInfo &info)
+bool QtChooser::choose(const QtInfo &info)
 {
     auto env = EnvironmentInjector::get();
 
@@ -24,16 +23,13 @@ void QtChooser::choose(const QtInfo &info)
         }
     }
     env->setEnv("QT_ROOT_DIR", info.prefix().string());
-    env->setEnv(
-        std::format("Qt{}_DIR", info.version().majorVersion()), info.cmakePackageDir().string());
+    env->setEnv(std::format("Qt{}_DIR", info.version().major()), info.cmakePackageDir().string());
     env->setEnv("Qt_DIR", info.cmakePackageDir().string());
     for (const auto &binDir : info.binDirs()) {
         env->addToPath(binDir);
     }
-    if (env->commit()) {
-        Q_EMIT(envVarsChanged());
-    }
     currentChosen.setInfo(info);
+    return env->commit();
 }
 
 } // namespace qtchooser

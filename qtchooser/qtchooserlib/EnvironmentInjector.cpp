@@ -7,10 +7,9 @@
  */
 
 #include "EnvironmentInjector.h"
-#include <QtGlobal>
-#ifdef Q_OS_WIN
+#ifdef OS_WINDOWS
 #include "EnvironmentInjectorWin.h"
-#elifdef Q_OS_LINUX
+#elifdef OS_LINUX
 #include "EnvironmentInjectorLinux.h"
 #endif
 
@@ -18,9 +17,9 @@ namespace qtchooser {
 
 std::unique_ptr<EnvironmentInjector> EnvironmentInjector::get()
 {
-#ifdef Q_OS_WIN
+#ifdef OS_WINDOWS
     return std::make_unique<EnvironmentInjectorWin>();
-#elifdef Q_OS_LINUX
+#elifdef OS_LINUX
     return std::make_unique<EnvironmentInjectorLinux>();
 #else
 #error "Unsupported platform"

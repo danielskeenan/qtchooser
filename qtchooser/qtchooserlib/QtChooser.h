@@ -10,32 +10,21 @@
 #define QTCHOOSER_QTCHOOSER_H
 
 #include "QtInfo.h"
-#include <QObject>
 
 namespace qtchooser {
 
 /**
  * Select the given Qt as the system default.
  */
-class QtChooser : public QObject
+class QtChooser
 {
-    Q_OBJECT
 public:
-    using QObject::QObject;
-
     /**
      * Update the system to use the Qt described in @p info.
      * @param info
+     * @return TRUE if system params have changed as a result of this action.
      */
-    void choose(const QtInfo &info);
-
-Q_SIGNALS:
-    /**
-     * Emitted when environment variables have changed.
-     *
-     * On some platforms, this requires the user logout and back in.
-     */
-    void envVarsChanged();
+    bool choose(const QtInfo &info);
 };
 
 } // namespace qtchooser
