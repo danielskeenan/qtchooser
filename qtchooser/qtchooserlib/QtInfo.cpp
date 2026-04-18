@@ -54,7 +54,7 @@ std::string qtQuery(const std::filesystem::path &qtpathsPath, const std::string 
     return qtpathsOut;
 }
 
-QtInfo::GetResult QtInfo::get(const std::filesystem::path &path)
+QtInfo::GetResult QtInfo::getFromPrefix(const std::filesystem::path &path)
 {
     SPDLOG_DEBUG("Inspecting {}", path.string());
     QtInfo info;
@@ -129,6 +129,15 @@ QtInfo::GetResult QtInfo::get(const std::filesystem::path &path)
     }
 
     return info;
+}
+
+QtInfo::GetResult QtInfo::getFromQtPaths(const std::filesystem::path &qtpathsPath)
+{
+    const auto prefix = qtQuery(qtpathsPath, "QT_HOST_PREFIX");
+    if (prefix.empty()) {
+        return std::unexpected(Error::FileNotFound);
+    }
+    return getFromPrefix(prefix);
 }
 
 } // namespace qtchooser

@@ -16,7 +16,7 @@ TEST_CASE("QtInfo")
     const auto prefix = std::filesystem::canonical(qtchooser::test::kHostQtPrefix);
     const auto version = QLibraryInfo::version();
 
-    const auto info = qtchooser::QtInfo::get(prefix);
+    const auto info = qtchooser::QtInfo::getFromPrefix(prefix);
     if (!info.has_value()) {
         FAIL(std::format("Error {}", static_cast<int>(info.error())));
     }

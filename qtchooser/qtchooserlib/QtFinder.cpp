@@ -30,7 +30,7 @@ std::vector<QtInfo> QtFinder::find()
 
         // POSIX-style directory.
         if (isPossibleQtDir(searchPath)) {
-            auto info = QtInfo::get(searchPath);
+            auto info = QtInfo::getFromPrefix(searchPath);
             if (info.has_value()) {
                 SPDLOG_DEBUG("Found v{} at {}", info->version().string(), info->prefix().string());
                 found.emplace_back(*info);

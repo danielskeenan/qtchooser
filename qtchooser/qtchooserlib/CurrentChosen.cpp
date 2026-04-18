@@ -28,7 +28,21 @@ CurrentChosen::CurrentChosen()
 
     std::ifstream settingsFile(currentChosenPath());
     if (!settingsFile.is_open()) {
-        // No settings stored.
+        // No settings stored. Try to guess from system environment.
+        std::array<std::string, 3> qtpathsNames{"qtpaths6", "qtpaths", "qtpaths5"};
+        for (auto &name : qtpathsNames) {
+#ifdef OS_WINDOWS
+            name.append(".exe");
+#endif
+            const auto qtpaths = boost::process::environment::find_executable(name);
+            if (!qtpaths.empty()) {
+                // Found qtpaths in PATH; ask it about installation.
+                const auto info = QtInfo::getFromQtPaths(qtpaths);
+                if (info.has_value()) {
+                    setInfo(*info);
+                }
+            }
+        }
         return;
     }
 

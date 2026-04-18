@@ -39,7 +39,8 @@ public:
 
     auto operator<=>(const QtInfo &) const = default;
     using GetResult = std::expected<QtInfo, QtInfo::Error>;
-    static GetResult get(const std::filesystem::path &path);
+    static GetResult getFromPrefix(const std::filesystem::path &path);
+    static GetResult getFromQtPaths(const std::filesystem::path &qtpathsPath);
     [[nodiscard]] VersionNumber version() const { return version_; }
     [[nodiscard]] std::filesystem::path prefix() const { return prefix_; }
     [[nodiscard]] const std::vector<std::filesystem::path> &binDirs() const { return binDirs_; }

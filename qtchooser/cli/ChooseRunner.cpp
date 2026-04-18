@@ -16,7 +16,7 @@ ChooseRunner::ChooseRunner(const ChooseCliOptions &cliOptions) : prefix_(cliOpti
 void ChooseRunner::run()
 {
     std::cout << "Choosing Qt at " << prefix_.string() << std::endl;
-    const auto info = QtInfo::get(prefix_);
+    const auto info = QtInfo::getFromPrefix(prefix_);
 
     if (!info.has_value()) {
         std::cerr << "Error while learning about Qt installation:" << std::endl

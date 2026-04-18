@@ -20,7 +20,7 @@ TEST_CASE("QtFinder")
     REQUIRE(found.size() > 0);
 
     // Check for the Qt this program was compiled with.
-    const auto thisQtInfo = qtchooser::QtInfo::get(qtchooser::test::kHostQtPrefix);
+    const auto thisQtInfo = qtchooser::QtInfo::getFromPrefix(qtchooser::test::kHostQtPrefix);
     REQUIRE(thisQtInfo.has_value());
     CHECK(std::ranges::find(found, *thisQtInfo) != found.cend());
 }
