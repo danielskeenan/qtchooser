@@ -7,12 +7,8 @@
  */
 
 #include "CurrentChosen.h"
-#include <QSettings>
 
 namespace qtchooser {
-
-constexpr auto kSettingCurrentPrefix = "lib/currentPrefix";
-constexpr auto kSettingCurrentBinDir = "lib/currentBinDir";
 
 CurrentChosen::CurrentChosen()
 {

@@ -9,11 +9,11 @@
 #ifndef QTCHOOSER_QTCHOOSERLIB_QTINFO_H
 #define QTCHOOSER_QTCHOOSERLIB_QTINFO_H
 
+#include "VersionNumber.h"
 #include <expected>
 #include <filesystem>
-#include <QFuture>
-#include <QString>
-#include <QVersionNumber>
+#include <string>
+#include <vector>
 
 namespace qtchooser {
 
@@ -37,26 +37,21 @@ public:
         Unknown,
     };
 
-    explicit QtInfo();
     auto operator<=>(const QtInfo &) const = default;
     using GetResult = std::expected<QtInfo, QtInfo::Error>;
-    static QFuture<GetResult> get(const std::filesystem::path &path);
-    [[nodiscard]] QString name() const { return name_; }
-    [[nodiscard]] QVersionNumber version() const { return version_; }
+    static GetResult get(const std::filesystem::path &path);
+    [[nodiscard]] VersionNumber version() const { return version_; }
     [[nodiscard]] std::filesystem::path prefix() const { return prefix_; }
     [[nodiscard]] const std::vector<std::filesystem::path> &binDirs() const { return binDirs_; }
     [[nodiscard]] std::filesystem::path cmakePackageDir() const { return cmakePackageDir_; }
 
 private:
-    QVersionNumber version_;
-    QString name_;
+    VersionNumber version_;
     std::filesystem::path prefix_;
     std::vector<std::filesystem::path> binDirs_;
     std::filesystem::path cmakePackageDir_;
 };
 
 } // namespace qtchooser
-
-Q_DECLARE_METATYPE(qtchooser::QtInfo)
 
 #endif //QTCHOOSER_QTCHOOSERLIB_QTINFO_H

@@ -18,5 +18,11 @@
     "name" : "winreg",
     "version>=" : "6.3.2",
     "platform" : "windows"
+  }, {
+    "name" : "boost-process",
+    "version>=" : "1.90.0#1"
+  }, {
+    "name" : "boost-algorithm",
+    "version>=" : "1.90.0#1"
   } ]
 }

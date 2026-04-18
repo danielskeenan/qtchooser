@@ -11,7 +11,8 @@
 
 #include <filesystem>
 #include <optional>
-#include <QStringList>
+#include <string>
+#include <vector>
 
 namespace qtchooser {
 
@@ -38,11 +39,11 @@ std::optional<std::filesystem::path> findFile(
  * @see https://cmake.org/cmake/help/latest/command/find_program.html
  */
 std::optional<std::filesystem::path> findProgram(
-    const QStringList &names,
+    const std::vector<std::string> &names,
     const std::filesystem::path &prefix,
     const std::vector<std::filesystem::path> &extraPaths);
 inline std::optional<std::filesystem::path> findProgram(
-    const QStringList &names, const std::filesystem::path &prefix)
+    const std::vector<std::string> &names, const std::filesystem::path &prefix)
 {
     return findProgram(names, prefix, {});
 }

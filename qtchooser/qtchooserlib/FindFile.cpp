@@ -7,9 +7,7 @@
  */
 
 #include "FindFile.h"
-
-#include <QStandardPaths>
-#include <QStringList>
+#include <boost/process/environment.hpp>
 
 namespace qtchooser {
 
@@ -27,22 +25,22 @@ std::optional<std::filesystem::path> findFile(
 }
 
 std::optional<std::filesystem::path> findProgram(
-    const QStringList &names,
+    const std::vector<std::string> &names,
     const std::filesystem::path &prefix,
     const std::vector<std::filesystem::path> &extraPaths)
 {
-    QStringList searchPaths{
-        QString::fromStdString((prefix / "bin").string()),
-        QString::fromStdString((prefix / "sbin").string()),
-    };
-    for (const auto& path : extraPaths) {
-        searchPaths.push_front(QString::fromStdString(path.string()));
+    // Setup search environment.
+    boost::process::environment::value pathVar((prefix / "bin").string());
+    for (const auto &extraPath : extraPaths) {
+        pathVar.push_back(extraPath.string());
     }
+    std::unordered_map<boost::process::environment::key, boost::process::environment::value> env{
+        {"PATH", pathVar}};
 
     for (const auto &name : names) {
-        const auto found = QStandardPaths::findExecutable(name, searchPaths);
-        if (!found.isEmpty()) {
-            return found.toStdString();
+        auto found = boost::process::environment::find_executable(name, env);
+        if (!found.empty()) {
+            return found;
         }
     }
 

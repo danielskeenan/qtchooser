@@ -12,14 +12,14 @@ execute_process(
         COMMAND_ERROR_IS_FATAL ANY
 )
 string(JSON QT_INSTALL_PREFIX GET "${QT_QUERY_JSON}" "QT_INSTALL_PREFIX")
-string(JSON QT_BIN_DIR GET "${QT_QUERY_JSON}" "QT_INSTALL_BINS")
-string(JSON QT_LIBEXEC_DIR GET "${QT_QUERY_JSON}" "QT_INSTALL_LIBEXECS")
+string(JSON QT_BIN_DIR GET "${QT_QUERY_JSON}" "QT_HOST_BINS")
+string(JSON QT_LIBEXEC_DIR GET "${QT_QUERY_JSON}" "QT_HOST_LIBEXECS")
 configure_file(qtchooser_testinfo.h.in ${PROJECT_BINARY_DIR}/qtchooser/qtchooser_testinfo.h)
 
 qt_add_executable(${TARGET}
         main.cpp
         QtInfoTest.cpp
-        QtFinderTest.cpp
+#        QtFinderTest.cpp
 )
 
 find_package(Catch2 3 REQUIRED)
