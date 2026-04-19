@@ -1,0 +1,102 @@
+.TH ${PROJECT_NAME} 1 "${PROJECT_BUILD_TIMESTAMP_DISPLAY}" "${PROJECT_NAME} ${PROJECT_VERSION}"
+
+.SH NAME
+${PROJECT_NAME} \- Manage multiple installed Qt versions
+
+.SH SYNOPSIS
+.SY ${PROJECT_NAME}
+.B list
+[\-\-path <\c
+.I PATH\c
+>...]
+.YS
+.SY ${PROJECT_NAME}
+.B choose
+<\c
+.I PREFIX\c
+>
+.YS
+.SY ${PROJECT_NAME}
+\-h|\-\-help
+.YS
+.SY ${PROJECT_NAME}
+\-v|\-\-version
+.YS
+
+.SH DESCRIPTION
+.P
+.B ${PROJECT_NAME}
+helps update system environment variables to reflect a chosen installation of Qt.
+
+.SS list
+.P
+Lists the Qt installations found on the system. By default, this will look in the following directories:
+
+.IP
+.I
+/usr
+.IP
+.I
+/usr/local
+.IP
+.I
+\(ti/Qt
+
+.P
+Use the
+.B --path
+option to add additional paths to search. Both POSIX prefixes and official Qt Installer directories are supported.
+
+.SS choose
+.P
+Update system environment variables to use the Qt installation in the given prefix.
+
+.P
+The following variables are updated:
+
+.RS
+.TP 12
+.I Qt6_DIR
+Path to the chosen Qt's CMake package file
+
+.TP
+.I Qt_DIR
+Same as Qt6_DIR
+
+.TP
+.I QT_ROOT_DIR
+Qt install prefix
+
+.TP
+.I PATH
+Updates \(ti/.bash_profile to prefix Qt's executable directories to the PATH.
+.RE
+
+.SH EXAMPLES
+.P
+Find Qt installations on the system:
+.IP
+.EX
+$ ${PROJECT_NAME} list
++\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Active | Version |\ \ \ \ \ \ \ \ \ \ \ \ Path \ \ \ \ \ \ \ \ \ \ \ |
++\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+|\ \ \ \ \ \ \ \ | 6.8.3 \ \ | /home/user/Qt/6.8.3/gcc_64 |
++\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+| Active | 6.10.3 \ | /usr \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |
++\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
+.EE
+.P
+Select the desired Qt:
+.IP
+.EX
+$ ${PROJECT_NAME} choose /home/user/Qt/6.8.3/gcc_64
+Choosing Qt at /home/user/Qt/6.8.3/gcc_64
+An environment variable has changed. You may need to log out and back in for this change to take effect in all programs.
+.EE
+
+.SH LICENSE
+${PROJECT_NAME}  Copyright (C) ${PROJECT_BUILD_TIMESTAMP_YEAR}  ${PROJECT_AUTHOR}
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under the conditions of the GNU General Public License Version 3.
