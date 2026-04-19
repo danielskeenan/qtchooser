@@ -1,0 +1,11 @@
+<CPackWiXPatch>
+    <CPackWiXFragment Id="CM_CP_bin.qtchooser.exe">
+        <Environment
+                Id="AddToPath"
+                Action="set"
+                Name="Path"
+                Part="last"
+                Value="[$CM_CP_bin.qtchooser.exe]"
+        />
+    </CPackWiXFragment>
+</CPackWiXPatch>
