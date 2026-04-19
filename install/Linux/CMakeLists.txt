@@ -9,8 +9,9 @@ set(CPACK_RPM_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
 set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
 
+include(GNUInstallDirs)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/qtchooser.1 ${CMAKE_CURRENT_BINARY_DIR}/qtchooser.1)
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/qtchooser.1
-        TYPE MAN
+        DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
 )

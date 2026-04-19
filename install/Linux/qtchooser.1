@@ -6,15 +6,13 @@ ${PROJECT_NAME} \- Manage multiple installed Qt versions
 .SH SYNOPSIS
 .SY ${PROJECT_NAME}
 .B list
-[\-\-path <\c
+[\-\-path \c
 .I PATH\c
->...]
+] \.\.\.
 .YS
 .SY ${PROJECT_NAME}
 .B choose
-<\c
-.I PREFIX\c
->
+.I PREFIX
 .YS
 .SY ${PROJECT_NAME}
 \-h|\-\-help
@@ -35,12 +33,14 @@ Lists the Qt installations found on the system. By default, this will look in th
 .IP
 .I
 /usr
+(default path for distro package managers)
 .IP
 .I
 /usr/local
 .IP
 .I
 \(ti/Qt
+(default path for official Qt installer)
 
 .P
 Use the
@@ -96,7 +96,24 @@ An environment variable has changed. You may need to log out and back in for thi
 .EE
 
 .SH LICENSE
-${PROJECT_NAME}  Copyright (C) ${PROJECT_BUILD_TIMESTAMP_YEAR}  ${PROJECT_AUTHOR}
-This program comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it
-under the conditions of the GNU General Public License Version 3.
+.P
+Copyright (C) ${PROJECT_BUILD_TIMESTAMP_YEAR} ${PROJECT_AUTHOR}
+
+.P
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+.P
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+.P
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see
+.UR https://www.gnu.org/licenses/
+.UE \c
+\&.
